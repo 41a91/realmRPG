@@ -1,0 +1,15 @@
+#gameCanvas
+{
+    border: 1px solid black;
+    box-shadow: 0 0 10px 25px;
+    background-color: white;
+}
+#gameSection
+{
+    width: 51%;
+    margin: 10% auto;
+}
+body
+{
+    background-color: #d4d4d9;
+}
