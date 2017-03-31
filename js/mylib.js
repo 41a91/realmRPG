@@ -164,7 +164,10 @@ var AnimatedSprite = Class.create(imageSprite,{
         this.frameTime = 1000/fps;
         this.frameWidth = this.img.width/this.frameCount;
     },
-
+    setImg: function(img)
+    {
+        this.img = img;
+    },
     draw: function($super,graphics)
     {
         graphics.save();
