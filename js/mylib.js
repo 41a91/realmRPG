@@ -9,6 +9,7 @@ var Sprite = Class.create({
         this.x = Math.round(x/100*this.container.width);
         this.y = Math.round(y/100*this.container.height);
         this.width = Math.round(w/100*this.container.width);
+        console.log(this.actualWidth);
         this.height = Math.round(h/100*this.container.height);
         if(this.width < 1)
         {
@@ -255,69 +256,6 @@ var Tile = Class.create(imageSprite,{
     }
 });
 
-var Map = Class.create({
-
-    initialize: function(list,grass1,grass2,road,container)
-    {
-        this.list = list;
-        this.grass1 = grass1;
-        this.grass2 = grass2;
-        this.road = road;
-        this.container = container;
-        this.collideTiles = [];
-        this.goalTiles = [];
-    },
-
-    draw: function(graphics,num)
-    {
-        for(var r = 0; r < this.list.length; r++)
-        {
-            for(var c = 0; c < this.list[r].length; c++)
-            {
-                if(this.list[r][c] == 0)
-                {
-                    var temp = new Tile(0,0,20,10,this.road,this.container,0);
-                }
-                else if(this.list[r][c] == 1)
-                {
-                    var temp = new Tile(0,0,20,10,this.grass1,this.container,1);
-                }
-                else if(this.list[r][c] == 2)
-                {
-                    var temp = new Tile(0,0,20,10,this.grass2,this.container,2);
-                    if(this.collideTiles < 11)
-                    {
-                        this.collideTiles.push(temp);
-                    }
-                }
-                else if(this.list[r][c] == 3)
-                {
-                    var temp = new Tile(0,0,20,10,this.road,this.container,0);
-                    if(this.goalTiles.length < num)
-                    {
-                        this.goalTiles.push(temp);
-                    }
-                }
-
-
-                var y = 9*r;
-                var x = 9*c;
-
-                temp.setLoc(x,y);
-                temp.draw(graphics);
-            }
-        }
-    },
-    getColTiles: function()
-    {
-        return this.collideTiles;
-    },
-    getGoalTiles: function()
-    {
-        return this.goalTiles;
-    }
-});
-
 var DialogueBox = Class.create(Sprite,{
 
    initialize: function($super,x,y,w,h,container,message)
@@ -326,6 +264,7 @@ var DialogueBox = Class.create(Sprite,{
 
        this.message = message;
        this.mLength = message.length;
+       this.w = w;
        this.percentLength = Math.round(message.length/100*this.container.width);
    },
     setMessage: function(m)
@@ -342,13 +281,12 @@ var DialogueBox = Class.create(Sprite,{
 
         ctx.font = this.getHeight()/4+"px Arial";
         ctx.textAlign = "center";
-        console.log(this.percentLength);
-        if(this.percentLength > this.getWidth())
+        if(this.mLength > this.w)
         {
             nMessage = [this.message.substr(0,this.mLength/2),this.message.substr(this.mLength/2,this.mLength/2)];
 
         }
-        if(nMessage != [])
+        if(nMessage.length > 0)
         {
             ctx.fillText(nMessage[0],this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
             ctx.fillText(nMessage[1],this.getX()+this.getWidth()/2,(this.getY()+this.getHeight()/2) + this.getHeight()/4,this.getWidth());
@@ -359,10 +297,87 @@ var DialogueBox = Class.create(Sprite,{
         }
         ctx.restore();
     }
-
-
 });
 
+var StateMachine = Class.create({
+
+    initialize: function()
+    {
+        this.mStates = [];
+        this.mStack = [];
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        var state = this.mStack[this.mStack.length-1];
+        state.update(deltaTime,mX,mY);
+
+    },
+    draw: function(graphics)
+    {
+        var state = this.mStack[this.mStack.length-1];
+        state.draw(graphics);
+    },
+    addState: function(state)
+    {
+        this.mStates.push(state);
+    },
+    changeState: function(stateIndex)
+    {
+        if(this.mStack.length > 0)
+        {
+            var state = this.mStack[this.mStack.length-1];
+            state.onExit();
+        }
+        var newState = this.mStates[stateIndex];
+        this.mStack.push(newState);
+        newState.onEnter();
+    },
+    revertState: function()
+    {
+        this.mStack.pop();
+    }
+});
+
+var MainMenuState = Class.create({
+
+   initialize: function(canvas,stateMachine)
+   {
+       this.canvas = canvas;
+       this.stateMachine = stateMachine;
+       this.boundingRect = canvas.getBoundingClientRect();
+       this.buttons = [];
+       this.title = new DialogueBox(35,10,30,10,canvas,"Welcome to my game! Currently it is still under construction.");
+   },
+    onEnter: function()
+    {
+        var temp = new Sprite(35,50,30,5,this.canvas);
+        this.buttons.push(temp);
+    },
+    onExit: function()
+    {
+        console.log("menu is exiting");
+    },
+    draw: function(g)
+    {
+        this.title.draw(g);
+        for(var i = 0; i < this.buttons.length; i++)
+        {
+            this.buttons[i].draw(g);
+        }
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        for(var i = 0; i < this.buttons.length; i++)
+        {
+            if(this.buttons[i].contains(mX,mY) && this.canvas.mouseDown)
+            {
+                console.log("click");
+                this.stateMachine.changeState(1);
+            }
+        }
+    }
+
+});
 
 
 

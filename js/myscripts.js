@@ -1,5 +1,7 @@
 var gameCanvas;
 var graphics;
+var canvasRect;
+
 var mainCharacter;
 var mainCharacterRightSheet;
 var mainCharacterLeftSheet;
@@ -7,6 +9,10 @@ var mainCharacterFrontSheet;
 var mainCharacterBackSheet;
 
 var dialogue;
+var stateMachine;
+
+var mX;
+var mY;
 
 var previousTime;
 var timer;
@@ -18,8 +24,13 @@ var timer;
 
 window.onload = function()
 {
+    mX = 10;
+    mY = 10;
+
     gameCanvas = document.getElementById("gameCanvas");
+    canvasRect = gameCanvas.getBoundingClientRect();
     graphics = gameCanvas.getContext("2d");
+    gameCanvas.mouseDown = false;
 
     dialogue = new DialogueBox(10,10,10,10,gameCanvas,"This is a huge test that should break it, but i might have fixed it.");
 
@@ -30,7 +41,9 @@ window.onload = function()
     mainCharacter = new AnimatedSprite(0,0,8,8,gameCanvas,mainCharacterFrontSheet,3,3);
     mainCharacter.play(-1);
 
-
+    stateMachine = new StateMachine();
+    stateMachine.addState(new MainMenuState(gameCanvas,stateMachine));
+    stateMachine.changeState(0);
 
     window.addEventListener("keydown",function(e){
         switch(e.keyCode) {
@@ -57,22 +70,32 @@ window.onload = function()
         }
     });
 
+    gameCanvas.addEventListener("mousedown",function()
+    {
+       gameCanvas.mouseDown = true;
+         mX = event.clientX-Math.floor(canvasRect.left);
+         mY = event.clientY-Math.floor(canvasRect.top);
+    });
+    gameCanvas.addEventListener("mouseup",function()
+    {
+       gameCanvas.mouseDown = false;
+    });
 
 
     previousTime = Date.now();
-    timer = setInterval(function(){
+    timer = setInterval(function(evt){
         var now = Date.now();
         var deltaTime = now - previousTime;
         graphics.clearRect(0,0,gameCanvas.width,gameCanvas.height);
 
-       mainCharacter.update(deltaTime);
-       mainCharacter.draw(graphics);
+       //mainCharacter.update(deltaTime);
+       //mainCharacter.draw(graphics);
 
-       dialogue.draw(graphics);
-
-
+       //dialogue.draw(graphics);
 
 
+        stateMachine.update(deltaTime,mX,mY);
+        stateMachine.draw(graphics);
 
 
 

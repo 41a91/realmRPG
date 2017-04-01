@@ -20,12 +20,3 @@ body
 {
     display: none;
 }
-#textArea
-{
-    border: 5px solid black;
-    background-color: white;
-    position: absolute;
-    bottom: 23%;
-    left: 28%;
-    z-index: 1;
-}
