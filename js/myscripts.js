@@ -87,6 +87,7 @@ window.onload = function()
     timer = setInterval(function(evt){
         var now = Date.now();
         var deltaTime = now - previousTime;
+        graphics.setTransform(1,0,0,1,0,0);
         graphics.clearRect(0,0,gameCanvas.width,gameCanvas.height);
 
        //mainCharacter.update(deltaTime);
@@ -97,6 +98,7 @@ window.onload = function()
 
         stateMachine.update(deltaTime,mX,mY);
         stateMachine.draw(graphics);
+
 
 
 
