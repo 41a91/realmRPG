@@ -330,11 +330,14 @@ var StateMachine = Class.create({
         }
         var newState = this.mStates[stateIndex];
         this.mStack.push(newState);
+        console.log("push: " + this.mStack);
         newState.onEnter();
     },
     revertState: function()
     {
-        this.mStack.pop();
+        var oldState = this.mStack.pop();
+        oldState.onExit();
+        console.log("pop: " + this.mStack);
     }
 });
 
@@ -377,6 +380,109 @@ var MainMenuState = Class.create({
         }
     }
 
+});
+
+var localGameState = Class.create({
+
+    initialize: function(canvas,stateMachine)
+    {
+        this.canvas = canvas;
+        this.boundingRect = canvas.getBoundingClientRect();
+        this.stateMachine = stateMachine;
+        this.mainCharacter = null;
+        this.mapSystem1 = new mapSystem(0,0,this.canvas);
+        this.eventFunction = function(e)
+        {
+            if(e.keyCode == 37)
+            {
+                this.stateMachine.revertState();
+            }
+        }
+    },
+    onEnter: function()
+    {
+        var mainCharacterRightSheet = document.getElementById("mainCharacterRight");
+        var mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
+        var mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
+        var mainCharacterBackSheet = document.getElementById("mainCharacterBack");
+        this.mainCharacter = new AnimatedSprite(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3);
+
+        this.mapSystem1.generateMap(0,0,false);
+
+        window.addEventListener("keydown",this.eventFunction);
+
+    },
+    onExit: function()
+    {
+        //this.mainCharacter = null;
+        window.removeEventListener("keydown",this.eventFunction);
+    },
+    draw: function(g)
+    {
+        this.mapSystem1.draw(g);
+        this.mainCharacter.draw(g);
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        this.mainCharacter.update(deltaTime);
+    }
+});
+
+var mapSystem = Class.create({
+
+
+    initialize: function(x,y,container)
+    {
+        this.tiles = [document.getElementById("dungeonTileBlack"),document.getElementById("dungeonWallTile")];
+        this.container = container;
+        this.boundingRect = container.getBoundingClientRect();
+        this.x = x;
+        this.y = y;
+        this.currentMap = [];
+        this.maps = [[1,1,1,1,1,1,1,1,1,1,
+                      1,0,0,0,0,0,0,0,0,1,
+                      1,0,0,0,0,0,0,0,0,0,
+                      1,0,0,0,0,0,0,0,0,1,
+                      1,1,1,1,1,1,1,1,1,1]];
+    },
+    generateMap: function(type,layered)
+    {
+        if(!layered)
+        {
+            var tileColumn = 0;
+            var tileRow = 0;
+
+            for(var i = 0; i < this.maps[type].length; i++ )
+            {
+                var pixelPosX = this.x + tileColumn * 5;
+                var pixelPosY = this.y + tileRow *5;
+                console.log("i: " + i + " x: " + pixelPosX + " y: " + pixelPosY);
+
+                var temp = new Tile(pixelPosX,pixelPosY,5,5,this.tiles[this.maps[type][i]],this.container,this.maps[type][i]);
+                this.currentMap.push(temp);
+
+                tileColumn += 1;
+                //20 is perfect size so do it greater for camera viewport
+                if(tileColumn >= 10)
+                {
+                    tileColumn = 0;
+                    tileRow += 1;
+                }
+            }
+        }
+        else
+        {
+            console.log("work in progress");
+        }
+
+    },
+    draw: function(g)
+    {
+        for(var i = 0; i < this.currentMap.length; i++)
+        {
+            this.currentMap[i].draw(g);
+        }
+    }
 });
 
 
