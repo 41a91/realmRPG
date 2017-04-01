@@ -1,13 +1,16 @@
 #gameCanvas
 {
     border: 1px solid black;
-    box-shadow: 0 0 10px 25px;
-    background-color: white;
+
+    z-index: -1;
 }
 #gameSection
 {
-    width: 51%;
-    margin: 10% auto;
+    width: 42%;
+    height: 580px;
+    display: inline-block;
+    margin: 8% 28%;
+    box-shadow: 0 0 10px 25px;
 }
 body
 {
@@ -16,4 +19,13 @@ body
 .noDraw
 {
     display: none;
+}
+#textArea
+{
+    border: 5px solid black;
+    background-color: white;
+    position: absolute;
+    bottom: 23%;
+    left: 28%;
+    z-index: 1;
 }

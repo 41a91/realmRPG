@@ -6,6 +6,8 @@ var mainCharacterLeftSheet;
 var mainCharacterFrontSheet;
 var mainCharacterBackSheet;
 
+var dialogue;
+
 var previousTime;
 var timer;
 
@@ -18,6 +20,8 @@ window.onload = function()
 {
     gameCanvas = document.getElementById("gameCanvas");
     graphics = gameCanvas.getContext("2d");
+
+    dialogue = new DialogueBox(10,10,10,10,gameCanvas,"This is a huge test that should break it, but i might have fixed it.");
 
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
@@ -62,7 +66,9 @@ window.onload = function()
         graphics.clearRect(0,0,gameCanvas.width,gameCanvas.height);
 
        mainCharacter.update(deltaTime);
-        mainCharacter.draw(graphics);
+       mainCharacter.draw(graphics);
+
+       dialogue.draw(graphics);
 
 
 

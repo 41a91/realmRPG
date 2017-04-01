@@ -318,6 +318,51 @@ var Map = Class.create({
     }
 });
 
+var DialogueBox = Class.create(Sprite,{
+
+   initialize: function($super,x,y,w,h,container,message)
+   {
+       $super(x,y,w,h,container);
+
+       this.message = message;
+       this.mLength = message.length;
+       this.percentLength = Math.round(message.length/100*this.container.width);
+   },
+    setMessage: function(m)
+    {
+        this.message = m;
+    },
+    draw: function(ctx)
+    {
+        ctx.save();
+
+        var nMessage = [];
+
+        ctx.strokeRect(this.getX(),this.getY(),this.getWidth(),this.getHeight());
+
+        ctx.font = this.getHeight()/4+"px Arial";
+        ctx.textAlign = "center";
+        console.log(this.percentLength);
+        if(this.percentLength > this.getWidth())
+        {
+            nMessage = [this.message.substr(0,this.mLength/2),this.message.substr(this.mLength/2,this.mLength/2)];
+
+        }
+        if(nMessage != [])
+        {
+            ctx.fillText(nMessage[0],this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
+            ctx.fillText(nMessage[1],this.getX()+this.getWidth()/2,(this.getY()+this.getHeight()/2) + this.getHeight()/4,this.getWidth());
+        }
+        else
+        {
+            ctx.fillText(this.message,this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
+        }
+        ctx.restore();
+    }
+
+
+});
+
 
 
 
