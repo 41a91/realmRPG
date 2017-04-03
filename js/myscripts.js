@@ -38,15 +38,15 @@ window.onload = function()
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
     mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterBackSheet = document.getElementById("mainCharacterBack");
-    mainCharacter = new AnimatedSprite(0,0,5,5,gameCanvas,mainCharacterFrontSheet,3,3);
+    mainCharacter = new AnimatedSprite(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3);
     mainCharacter.play(-1);
 
     stateMachine = new StateMachine();
     stateMachine.addState(new MainMenuState(gameCanvas,stateMachine));
-    stateMachine.addState(new localGameState(gameCanvas,stateMachine));
+    stateMachine.addState(new localGameState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
 
-    window.addEventListener("keydown",function(e){
+    /*window.addEventListener("keydown",function(e){
         switch(e.keyCode) {
             case 37:
                 mainCharacter.setImg(mainCharacterLeftSheet);
@@ -69,7 +69,7 @@ window.onload = function()
                 mainCharacter.play(1);
                 break;
         }
-    });
+    });*/
 
     gameCanvas.addEventListener("mousedown",function()
     {

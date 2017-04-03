@@ -381,19 +381,38 @@ var MainMenuState = Class.create({
 
 var localGameState = Class.create({
 
-    initialize: function(canvas,stateMachine)
+    initialize: function(canvas,stateMachine,mainCharacter)
     {
         this.canvas = canvas;
         this.boundingRect = canvas.getBoundingClientRect();
         this.stateMachine = stateMachine;
-        this.mainCharacter = null;
+        this.mainCharacter = mainCharacter;
+        this.collideLayer = [];
         this.mapSystem1 = new mapSystem(0,0,this.canvas);
         this.eventFunction = function(e)
         {
-            if(e.keyCode == 37)
-            {
-                this.stateMachine.revertState();
-            }
+                switch(e.keyCode) {
+                    case 37:
+                        mainCharacter.setImg(mainCharacterLeftSheet);
+                        mainCharacter.moveX(-2);
+                        mainCharacter.play(1);
+                        break;
+                    case 39:
+                        mainCharacter.setImg(mainCharacterRightSheet);
+                        mainCharacter.moveX(2);
+                        mainCharacter.play(1);
+                        break;
+                    case 38:
+                        mainCharacter.setImg(mainCharacterBackSheet);
+                        mainCharacter.moveY(-2);
+                        mainCharacter.play(1);
+                        break;
+                    case 40:
+                        mainCharacter.setImg(mainCharacterFrontSheet);
+                        mainCharacter.moveY(2);
+                        mainCharacter.play(1);
+                        break;
+                }
         }
     },
     onEnter: function()
@@ -402,9 +421,9 @@ var localGameState = Class.create({
         var mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
         var mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
         var mainCharacterBackSheet = document.getElementById("mainCharacterBack");
-        this.mainCharacter = new AnimatedSprite(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3);
 
         this.mapSystem1.generateMap(0,0,false);
+        this.collideLayer = this.mapSystem1.getCollision();
 
         window.addEventListener("keydown",this.eventFunction);
 
@@ -416,13 +435,27 @@ var localGameState = Class.create({
     },
     draw: function(g)
     {
-        graphics.setTransform(1,0,0,1,0,0);
-        graphics.translate(0,0);
+        var camX = clamp(-this.mainCharacter.getX() + this.canvas.width/2, -800,0);
+        var camY = clamp(-this.mainCharacter.getY() + this.canvas.height/2, -2000,0);
+
+        g.translate(camX,camY);
+
         this.mapSystem1.draw(g);
         this.mainCharacter.draw(g);
     },
     update: function(deltaTime,mX,mY)
     {
+
+        for(var i = 0; i < this.collideLayer.length; i++)
+        {
+            if(this.collideLayer[i].contains(this.mainCharacter.getX(),this.mainCharacter.getY()))
+            {
+                console.log("hit: " + this.collideLayer[i].getX() + " " + this.collideLayer[i].getY());
+                console.log("Player: " + this.mainCharacter.getX() + " " + this.mainCharacter.getY());
+            }
+        }
+
+
         this.mainCharacter.update(deltaTime);
     }
 });
@@ -459,6 +492,11 @@ var mapSystem = Class.create({
                 var temp = new Tile(pixelPosX,pixelPosY,5,5,this.tiles[this.maps[type][i]],this.container,this.maps[type][i]);
                 this.currentMap.push(temp);
 
+                if(this.maps[type][i] == 3)
+                {
+                    this.collideLayer.push(temp);
+                }
+
                 tileColumn += 1;
                 //20 is perfect size so do it greater for camera viewport
                 if(tileColumn >= 40)
@@ -481,9 +519,27 @@ var mapSystem = Class.create({
 
             this.currentMap[i].draw(g);
         }
+    },
+    getCollision: function()
+    {
+        return this.collideLayer;
     }
 });
 
-
+function clamp(value, min, max)
+{
+  if(value < min)
+  {
+      return min;
+  }
+  else if(value > max)
+  {
+      return max;
+  }
+  else
+  {
+      return value;
+  }
+};
 
 
