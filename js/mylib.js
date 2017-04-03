@@ -579,7 +579,7 @@ function collisionDirection(character,tile)
     var leftColl = tileRight - character.getX();
     var rightColl = charRight - tile.getX();
 
-    if(topColl <= bottomColl && topColl <= leftColl && topColl <= rightColl && character.getYSpd() > 0)
+    /*if(topColl <= bottomColl && topColl <= leftColl && topColl <= rightColl && character.getYSpd() > 0)
     {
         character.moveY(-2);
     }
@@ -595,7 +595,7 @@ function collisionDirection(character,tile)
     {
         character.moveX(-2);
     }
-    else if(character.getXSpd() < 0)
+    else*/ if(character.getXSpd() < 0)
     {
         character.moveX(2);
     }
@@ -605,17 +605,18 @@ function collisionDirection(character,tile)
     }
     else if(character.getYSpd() < 0)
     {
-        character.moveY(1);
+        character.moveY(2);
     }
     else if(character.getYSpd() > 0)
     {
-        character.moveY(-1);
+        character.moveY(-2);
     }
     else
     {
         console.log("you found the glitch in the game!");
     }
-    console.log("topCall: " + topColl + " bottColl: " + bottomColl + " rightColl: " + rightColl + " leftColl: " + leftColl);
+    //console.log("topCall: " + topColl + " bottColl: " + bottomColl + " rightColl: " + rightColl + " leftColl: " + leftColl);
+    console.log("x: " + character.getXSpd() + " y: " + character.getYSpd());
 };
 
 //Phaser
