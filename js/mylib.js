@@ -7,7 +7,6 @@ var Sprite = Class.create({
         this.actualHeight = h;
         this.container = container;
         this.x = Math.round(x/100*this.container.width);
-        console.log(Math.round(this.x/100*this.container.width));
         this.y = Math.round(y/100*this.container.height);
         this.width = Math.round(w/100*this.container.width);
         this.height = Math.round(h/100*this.container.height);
@@ -337,11 +336,11 @@ var StateMachine = Class.create({
     },
     changeState: function(stateIndex)
     {
-        if(this.mStack.length > 0)
+        /*if(this.mStack.length > 0)
         {
             var state = this.mStack[this.mStack.length-1];
             state.onExit();
-        }
+        }*/
         var newState = this.mStates[stateIndex];
         this.mStack.push(newState);
         newState.onEnter();
@@ -452,9 +451,9 @@ var localGameState = Class.create({
     {
         var details = this.mapSystem1.getMapDetails(0);
 
-        var camX = clamp(-this.mainCharacter.getX() + this.canvas.width/2, -800,0);
-        var camY = clamp(-this.mainCharacter.getY() + this.canvas.height/2, -2000,0);
-//40 * 39 *
+        var camX = clamp(-this.mainCharacter.getX() + this.canvas.width/2, -(details[0]*40-this.canvas.width),0);
+        var camY = clamp(-this.mainCharacter.getY() + this.canvas.height/2, -(details[1]*30-this.canvas.height),0);
+//  width: 40px height: 30px
         g.translate(camX,camY);
 
         this.mapSystem1.draw(g);
@@ -497,7 +496,6 @@ var mapSystem = Class.create({
     },
     generateMap: function(type,layered)
     {
-        console.log(this.maps[type].length);
         if(!layered)
         {
             var tileColumn = 0;
@@ -605,12 +603,20 @@ function collisionDirection(character,tile)
     {
         character.moveX(-2);
     }
+    else if(character.getYSpd() < 0)
+    {
+        character.moveY(1);
+    }
+    else if(character.getYSpd() > 0)
+    {
+        character.moveY(-1);
+    }
     else
     {
         console.log("you found the glitch in the game!");
     }
     console.log("topCall: " + topColl + " bottColl: " + bottomColl + " rightColl: " + rightColl + " leftColl: " + leftColl);
-}
+};
 
 //Phaser
 
