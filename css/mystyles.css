@@ -1,7 +1,6 @@
 #gameCanvas
 {
-    border: 1px solid black;
-
+    box-shadow: 0 0 10px 25px;
     z-index: -1;
 }
 #gameSection
@@ -10,7 +9,6 @@
     height: 580px;
     display: inline-block;
     margin: 8% 28%;
-    box-shadow: 0 0 10px 25px;
 }
 body
 {
