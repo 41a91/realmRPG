@@ -5,9 +5,10 @@
     <title>Title</title>
 </head>
 <body>
-<form id="newSave" action="createNewSave.php" method="post">
-    <label>Username: <input type="text" id="username" name="username"/></label>
-    <label>Password: <input type="password" id="password" name="password"/></label>
+<form id="newSave" action="/realmRPG/php/control/newSaveControl.php" method="post">
+    <label>Username: <input type="text" id="username" name="username" required="required"/></label><br/>
+    <label>Password: <input type="password" id="password" name="password" required="required"/></label>
+    <input type="submit" id="submit" name="submit" value="Submit"/>
 </form>
 
 </body>

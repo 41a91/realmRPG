@@ -247,9 +247,265 @@ var AnimatedSprite = Class.create(imageSprite,{
     {
         this.currentFrame = frame % this.frameCount;
     }
+});
 
+var Player = Class.create(AnimatedSprite,{
 
+   initialize: function($super, x,y,w,h,container,img,frameCount,fps,stats,health,mana)
+   {
+       $super(x,y,w,h,container,img,frameCount,fps);
 
+       this.inv = [];
+       this.stats = stats;
+       // 0: str 1: def 2: agility 3: exp
+       this.alive = true;
+       this.maxHealth = health;
+       this.nextLevelXP = 500;
+       this.level = 1;
+       this.currentHealth = health;
+       this.maxMana = mana;
+       this.currentMana = mana;
+       this.spells = [];
+       this.currentWeapon = null;
+       this.currentArmor = null;
+   },
+    getInv: function()
+    {
+        return this.inv;
+    },
+    getStats: function()
+    {
+        return this.stats;
+    },
+    getCurrentHealth: function()
+    {
+        return this.currentHealth;
+    },
+    getMana: function()
+    {
+        return this.currentMana;
+    },
+    getSpells: function()
+    {
+        return this.spells;
+    },
+    getCurrentWeapon: function()
+    {
+        return this.currentWeapon;
+    },
+    getCurrentArmor: function()
+    {
+        return this.currentArmor;
+    },
+    addItem: function(item)
+    {
+        this.inv.push(item);
+    },
+    removeItem: function(itemName)
+    {
+        for(var i = 0; i < this.inv.length; i++)
+        {
+            if(itemName == this.inv[i].getName())
+            {
+                this.inv.slice(i,i+1);
+            }
+        }
+    },
+    gainXP: function(xp)
+    {
+      this.stats[3] += xp;
+    },
+    takeDamage: function(dmg)
+    {
+      this.currentHealth -= dmg;
+      if(this.currentHealth <= 0)
+      {
+          this.alive = false;
+      }
+    },
+    heal: function(hp)
+    {
+        this.currentHealth += hp;
+        if(this.currentHealth > this.maxHealth)
+        {
+            this.currentHealth = this.maxHealth;
+        }
+    },
+    useMana: function(dx)
+    {
+      this.currentMana -= dx;
+      if(this.currentMana < 0)
+      {
+          this.currentMana = 0;
+      }
+    },
+    gainMana: function(dx)
+    {
+      this.currentMana += dx;
+      if(this.currentMana > this.maxMana)
+      {
+          this.currentMana = this.maxMana;
+      }
+    },
+    levelUp: function()
+    {
+      this.maxHealth += 50;
+      this.currentHealth = this.maxHealth;
+      this.maxMana += 10;
+      this.currentMana = this.maxMana;
+      for(var i = 0; i < 3; i++)
+      {
+          this.stats[i] += (1 + Math.ceil(this.level/5));
+      }
+    },
+    isAlive: function()
+    {
+        return this.alive;
+    },
+    update: function($super,deltaTime)
+    {
+        $super(deltaTime);
+
+        if(this.stats[3] >= this.nextLevelXP)
+        {
+            this.level++;
+            this.levelUp();
+            this.nextLevelXP += (500*this.level);
+        }
+    }
+});
+
+var Weapon = Class.create(imageSprite,{
+
+   initialize: function($super,x,y,w,h,img,container,name,type,spd,damage,price)
+   {
+       $super(x,y,w,h,img,container);
+       this.spd = spd;
+       this.damage = damage;
+       this.price = price;
+       this.name = name;
+       this.type = type;
+   },
+    getSpd: function()
+    {
+        return this.spd;
+    },
+    getDamage: function()
+    {
+        return this.damage;
+    },
+    getPrice: function()
+    {
+       return this.price;
+    },
+    getName: function()
+    {
+        return this.name;
+    },
+    getType: function()
+    {
+        return this.type;
+    },
+    setName: function(name)
+    {
+        this.name = name;
+    }
+});
+
+var Armor = Class.create(imageSprite,{
+
+    initialize: function($super,x,y,w,h,img,container,name,type,defence,price)
+    {
+        $super(x,y,w,h,img,container);
+        this.defence = defence;
+        this.price = price;
+        this.name = name;
+        this.type = type;
+    },
+    getDefence: function()
+    {
+        return this.defence;
+    },
+    getPrice: function()
+    {
+        return this.price;
+    },
+    getName: function()
+    {
+        return this.name;
+    },
+    getType: function()
+    {
+        return this.type;
+    },
+    setName: function(name)
+    {
+        this.name = name;
+    }
+});
+
+var QuestObject = Class.create(imageSprite,{
+
+    initialize: function($super,x,y,w,h,img,container,name,type,price,sellable)
+    {
+        $super(x,y,w,h,img,container);
+        this.price = price;
+        this.name = name;
+        this.type = type;
+        this.sellable = sellable;
+    },
+    getPrice: function()
+    {
+        return this.price;
+    },
+    getName: function()
+    {
+        return this.name;
+    },
+    getType: function()
+    {
+        return this.type;
+    },
+    setName: function(name)
+    {
+        this.name = name;
+    },
+    isSellable: function()
+    {
+        return this.sellable;
+    }
+});
+
+var Spell = Class.create(imageSprite,{
+
+    initialize: function($super,x,y,w,h,img,container,name,type,damage,manaCost)
+    {
+        $super(x,y,w,h,img,container);
+        this.name = name;
+        this.type = type;
+        this.damage = damage;
+        this.manaCost = manaCost;
+    },
+    getName: function()
+    {
+        return this.name;
+    },
+    getType: function()
+    {
+        return this.type;
+    },
+    setName: function(name)
+    {
+        this.name = name;
+    },
+    getManaCost: function()
+    {
+        return this.manaCost;
+    },
+    getDamage: function()
+    {
+        return this.damage;
+    }
 });
 
 var Tile = Class.create(imageSprite,{
@@ -396,7 +652,7 @@ var MainMenuState = Class.create({
                 section.style.display = "block";
                 this.inPHP = true;
                 $.ajax({
-                    url: "php/view/createNewSave.php",
+                    url: "php/view/createNewSave.php?inv='fire'",
                     cache: false
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);
@@ -410,13 +666,28 @@ var MainMenuState = Class.create({
 });
 var DialogueState = Class.create({
 
+    initialize: function(x,y,w,h,container,message)
+    {
+
+    },
+    onEnter: function()
+    {
+
+    },
+    onExit: function()
+    {
+
+    },
+    draw: function(g)
+    {
+
+    },
+    update: function(deltaTime,mX,mY)
+    {
 
 
-
-
-
+    }
 });
-
 var localGameState = Class.create({
 
     initialize: function(canvas,stateMachine,mainCharacter)
