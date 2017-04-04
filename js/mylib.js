@@ -360,6 +360,7 @@ var MainMenuState = Class.create({
        this.stateMachine = stateMachine;
        this.boundingRect = canvas.getBoundingClientRect();
        this.buttons = [];
+       this.inPHP = false;
        this.title = new DialogueBox(25,5,50,20,canvas,"RealmRPG");
    },
     onEnter: function()
@@ -383,10 +384,26 @@ var MainMenuState = Class.create({
     update: function(deltaTime,mX,mY)
     {
 
+        if(!this.inPHP)
+        {
             if(this.buttons[0].contains(mX,mY) && this.canvas.mouseDown)
             {
                 this.stateMachine.changeState(1);
             }
+            else if(this.buttons[1].contains(mX,mY) && this.canvas.mouseDown)
+            {
+                var section = document.getElementById("phpIncludeSection");
+                section.style.display = "block";
+                this.inPHP = true;
+                $.ajax({
+                    url: "php/view/createNewSave.php",
+                    cache: false
+                }).done(function(html){
+                    $("#phpIncludeSection").append(html);
+                });
+            }
+        }
+
 
     }
 

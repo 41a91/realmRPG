@@ -8,7 +8,7 @@
     width: 42%;
     height: 580px;
     display: inline-block;
-    margin: 8% 28%;
+    margin: 8% 23%;
 }
 body
 {
@@ -16,5 +16,16 @@ body
 }
 .noDraw
 {
+    display: none;
+}
+#phpIncludeSection
+{
+    position: absolute;
+    top: 70px;
+    left: 285px;
+    width: 900px;
+    height: 700px;
+    border: 1px solid black;
+    background-color: white;
     display: none;
 }
