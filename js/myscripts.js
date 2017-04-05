@@ -7,6 +7,8 @@ var mainCharacterRightSheet;
 var mainCharacterLeftSheet;
 var mainCharacterFrontSheet;
 var mainCharacterBackSheet;
+var armorLight;
+var weaponDagger;
 
 var dialogue;
 var stateMachine;
@@ -18,6 +20,7 @@ var previousTime;
 var timer;
 
 var testArmor;
+var testSword;
 
 
 
@@ -33,10 +36,16 @@ window.onload = function()
     canvasRect = gameCanvas.getBoundingClientRect();
     graphics = gameCanvas.getContext("2d");
     gameCanvas.mouseDown = false;
+
+
     mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
     mainCharacterBackSheet = document.getElementById("mainCharacterBack");
+    armorLight = document.getElementById("ArmorLight");
+    weaponDagger = document.getElementById("WeaponDagger");
+
+
     mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1],100,100);
     mainCharacter.play(-1);
 
@@ -46,8 +55,10 @@ window.onload = function()
     stateMachine.addState(new inventoryState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
 
-    testArmor = new Armor(0,0,5,5,mainCharacterFrontSheet,gameCanvas,"Leather Armor",3,20);
+    testArmor = new Armor(0,0,5,5,armorLight,gameCanvas,"Leather Armor",3,20);
+    testSword = new Weapon(0,0,5,5,weaponDagger,gameCanvas,"Dagger",6,2,10);
     mainCharacter.addItem(testArmor);
+    mainCharacter.addItem(testSword);
 
     /*window.addEventListener("keydown",function(e){
         switch(e.keyCode) {

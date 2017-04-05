@@ -314,9 +314,9 @@ var Player = Class.create(AnimatedSprite,{
     {
         for(var i = 0; i < this.inv.length; i++)
         {
-            if(itemName == this.inv[i].getName())
+            if(itemName.getName() == this.inv[i].getName())
             {
-                this.inv.slice(i,i+1);
+                this.inv.splice(i,i+1);
             }
         }
     },
@@ -370,6 +370,56 @@ var Player = Class.create(AnimatedSprite,{
     isAlive: function()
     {
         return this.alive;
+    },
+    equip: function(item)
+    {
+      if(item.getType() == "Armor")
+      {
+          if(this.currentArmor != null)
+          {
+              this.addItem(this.currentArmor);
+              this.currentArmor = item;
+          }
+          else
+          {
+              this.currentArmor = item;
+          }
+
+      }
+      else if(item.getType() == "Weapon")
+      {
+          if(this.currentWeapon != null)
+          {
+              this.addItem(this.currentWeapon);
+              this.currentWeapon = item;
+          }
+          else
+          {
+              this.currentWeapon = item;
+          }
+      }
+      else
+      {
+          console.log("Not an equip able item");
+      }
+        this.removeItem(item);
+    },
+    unequip: function(type)
+    {
+      if(type == "Weapon")
+      {
+          this.addItem(this.currentWeapon);
+          this.currentWeapon = null;
+      }
+      else if(type == "Armor")
+      {
+          this.addItem(this.currentArmor);
+          this.currentArmor = null;
+      }
+      else
+      {
+          console.log("Incorrect type to unequip");
+      }
     },
     update: function($super,deltaTime)
     {
@@ -613,6 +663,7 @@ var StateMachine = Class.create({
     revertState: function()
     {
         var oldState = this.mStack.pop();
+        console.log(oldState);
         oldState.onExit();
     }
 });
@@ -734,8 +785,9 @@ var localGameState = Class.create({
                         mainCharacter.play(1);
                         break;
                     case 73:
-                        this.stateMachine.changeState(2);
-                        this.mainCharacter.setMove(false);
+                        stateMachine.changeState(2);
+                        mainCharacter.setMove(false);
+                        console.log("inv");
                         break;
             }
                 }
@@ -803,10 +855,25 @@ var inventoryState = Class.create({
        this.mainCharacter = mainCharacter;
        this.inventory = mainCharacter.getInv();
        this.one = false;
+       this.clicked = 0;
        this.heading = new DialogueBox(30,0,30,10,canvas,"Inventory");
+       this.equip = new DialogueBox(0,0,10,5,canvas,"Equip");
+       this.dropItem = new DialogueBox(0,0,10,5,canvas,"Drop");
+       this.stat = new DialogueBox(0,0,10,4,canvas,"");
+       this.return = new DialogueBox(75,90,20,7,canvas,"Return");
    },
     onEnter: function()
     {
+
+        this.heading = new DialogueBox(30,0,30,10,this.canvas,"Inventory");
+        this.equip = new DialogueBox(0,0,10,5,this.canvas,"Equip");
+        this.dropItem = new DialogueBox(0,0,10,5,this.canvas,"Drop");
+        this.stat = new DialogueBox(0,0,10,4,this.canvas,"");
+        this.return = new DialogueBox(75,90,20,7,this.canvas,"Return");
+        this.inventory = mainCharacter.getInv();
+        this.one = false;
+
+
         var tileColumn = 0;
         var tileRow = 0;
 
@@ -817,7 +884,7 @@ var inventoryState = Class.create({
 
             this.inventory[i].setLoc(pixelPosX,pixelPosY);
 
-            tileColumn += 1;
+            tileColumn += 2;
             if(tileColumn >= 20)
             {
                 tileColumn = 0;
@@ -827,7 +894,13 @@ var inventoryState = Class.create({
     },
     onExit: function()
     {
-
+        this.heading = null;
+        this.equip = null;
+        this.dropItem = null;
+        this.stat = null;
+        this.return = null;
+        this.clicked = 0;
+        this.inventory = [];
     },
     update: function(deltaTime,mX,mY)
     {
@@ -835,40 +908,71 @@ var inventoryState = Class.create({
         {
             if(this.inventory[i].contains(mX,mY) && !this.one)
             {
-                var temp = document.createElement("div");
-                temp.style.position = "absolute";
-                temp.style.top = this.inventory[i].getY() + "px";
-                temp.style.left = this.inventory[i].getX()+this.boundingRect.left + "px";
-                temp.style.width = "150px";
-                temp.style.backgroundColor = "white";
-                temp.style.height = "90px";
-                temp.style.zIndex = 4;
-                temp.innerHTML += "Type: " + this.inventory[i].getType() + "<br/>";
-                temp.innerHTML += "Name: " + this.inventory[i].getName() + "<br/>";
+
+                this.clicked = this.inventory[i];
+                var x = this.inventory[i].getX()/5;
+                var y = this.inventory[i].getY()/4;
+
+                this.equip.setLoc(x,y);
+                this.dropItem.setLoc(x,y+5);
+                this.stat.setLoc(x,y+10);
+
                 if(this.inventory[i].getType() == "Armor")
                 {
-                    temp.innerHTML += "Defence: " + this.inventory[i].getDefence() + "<br/>";
+                   this.stat.setMessage("Defence: " + this.inventory[i].getDefence());
                 }
                 else if(this.inventory[i].getType() == "Weapon")
                 {
-                    temp.innerHTML += "Damage: " + this.inventory[i].getDamage() + "<br/>";
-                    temp.innerHTML += "Speed: " + this.inventory[i].getSpd() + "<br/>";
+                    this.stat.setMessage("Damage: " + this.inventory[i].getDamage());
                 }
-                temp.innerHTML += "Price: " + this.inventory[i].getPrice() + "<br/>";
-                temp.addEventListener("click",function(){
-                    temp.parentNode.removeChild(temp);
-                });
-                document.body.appendChild(temp);
+                else
+                {
+                    this.stat.setMessage("Cost: " + this.inventory[i].getPrice());
+                }
                 this.one = true;
             }
+            if(this.clicked != 0 && this.one)
+            {
+                if(this.equip.contains(mX,mY))
+                {
+                    if(this.clicked.getType() == "Armor" || this.clicked.getType() == "Weapon")
+                    {
+                        this.mainCharacter.equip(this.clicked);
+                        this.one = false;
+                        this.inventory = this.mainCharacter.getInv();
+                    }
+                }
+                else if(this.dropItem.contains(mX,mY))
+                {
+                    this.mainCharacter.removeItem(this.clicked);
+                    this.one = false;
+                    this.inventory = this.mainCharacter.getInv();
+                }
+                if(!this.clicked.contains(mX,mY))
+                {
+                    this.one = false;
+                }
+            }
+        }
+        if(this.return.contains(mX,mY))
+        {
+            this.stateMachine.revertState();
+            this.mainCharacter.setMove(true);
         }
     },
     draw: function(g)
     {
         this.heading.draw(g);
+        this.return.draw(g);
         for(var i = 0; i < this.inventory.length; i++)
         {
             this.inventory[i].draw(g);
+        }
+        if(this.one)
+        {
+            this.equip.draw(g);
+            this.dropItem.draw(g);
+            this.stat.draw(g);
         }
     }
 });
