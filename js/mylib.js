@@ -663,7 +663,6 @@ var StateMachine = Class.create({
     revertState: function()
     {
         var oldState = this.mStack.pop();
-        console.log(oldState);
         oldState.onExit();
     }
 });
@@ -761,7 +760,7 @@ var localGameState = Class.create({
         this.mapSystem1 = new mapSystem(0,0,this.canvas);
         this.eventFunction = function(e)
         {
-            if(mainCharacter.canMove)
+            if(this.mainCharacter.canMove)
             {
                 switch(e.keyCode) {
                     case 37:
@@ -787,7 +786,6 @@ var localGameState = Class.create({
                     case 73:
                         stateMachine.changeState(2);
                         mainCharacter.setMove(false);
-                        console.log("inv");
                         break;
             }
                 }
@@ -901,6 +899,8 @@ var inventoryState = Class.create({
         this.return = null;
         this.clicked = 0;
         this.inventory = [];
+        mX = 0;
+        mY = 0;
     },
     update: function(deltaTime,mX,mY)
     {
