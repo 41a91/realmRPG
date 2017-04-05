@@ -251,7 +251,7 @@ var AnimatedSprite = Class.create(imageSprite,{
 
 var Player = Class.create(AnimatedSprite,{
 
-   initialize: function($super, x,y,w,h,container,img,frameCount,fps,stats,health,mana)
+   initialize: function($super,x,y,w,h,container,img,frameCount,fps,stats,health,mana)
    {
        $super(x,y,w,h,container,img,frameCount,fps);
 
@@ -265,10 +265,19 @@ var Player = Class.create(AnimatedSprite,{
        this.currentHealth = health;
        this.maxMana = mana;
        this.currentMana = mana;
+       this.canMove = true;
        this.spells = [];
        this.currentWeapon = null;
        this.currentArmor = null;
    },
+    canMove: function()
+    {
+        return this.canMove;
+    },
+    setMove: function(bool)
+    {
+      this.canMove = bool;
+    },
     getInv: function()
     {
         return this.inv;
@@ -377,14 +386,14 @@ var Player = Class.create(AnimatedSprite,{
 
 var Weapon = Class.create(imageSprite,{
 
-   initialize: function($super,x,y,w,h,img,container,name,type,spd,damage,price)
+   initialize: function($super,x,y,w,h,img,container,name,spd,damage,price)
    {
        $super(x,y,w,h,img,container);
        this.spd = spd;
        this.damage = damage;
        this.price = price;
        this.name = name;
-       this.type = type;
+       this.type = "Weapon";
    },
     getSpd: function()
     {
@@ -414,13 +423,13 @@ var Weapon = Class.create(imageSprite,{
 
 var Armor = Class.create(imageSprite,{
 
-    initialize: function($super,x,y,w,h,img,container,name,type,defence,price)
+    initialize: function($super,x,y,w,h,img,container,name,defence,price)
     {
         $super(x,y,w,h,img,container);
         this.defence = defence;
         this.price = price;
         this.name = name;
-        this.type = type;
+        this.type = "Armor";
     },
     getDefence: function()
     {
@@ -446,12 +455,12 @@ var Armor = Class.create(imageSprite,{
 
 var QuestObject = Class.create(imageSprite,{
 
-    initialize: function($super,x,y,w,h,img,container,name,type,price,sellable)
+    initialize: function($super,x,y,w,h,img,container,name,price,sellable)
     {
         $super(x,y,w,h,img,container);
         this.price = price;
         this.name = name;
-        this.type = type;
+        this.type = "Object";
         this.sellable = sellable;
     },
     getPrice: function()
@@ -478,11 +487,11 @@ var QuestObject = Class.create(imageSprite,{
 
 var Spell = Class.create(imageSprite,{
 
-    initialize: function($super,x,y,w,h,img,container,name,type,damage,manaCost)
+    initialize: function($super,x,y,w,h,img,container,name,damage,manaCost)
     {
         $super(x,y,w,h,img,container);
         this.name = name;
-        this.type = type;
+        this.type = "Spell";
         this.damage = damage;
         this.manaCost = manaCost;
     },
@@ -610,11 +619,12 @@ var StateMachine = Class.create({
 
 var MainMenuState = Class.create({
 
-   initialize: function(canvas,stateMachine)
+   initialize: function(canvas,stateMachine,mainCharacter)
    {
        this.canvas = canvas;
        this.stateMachine = stateMachine;
        this.boundingRect = canvas.getBoundingClientRect();
+       this.mainCharacter = mainCharacter;
        this.buttons = [];
        this.inPHP = false;
        this.title = new DialogueBox(25,5,50,20,canvas,"RealmRPG");
@@ -700,6 +710,8 @@ var localGameState = Class.create({
         this.mapSystem1 = new mapSystem(0,0,this.canvas);
         this.eventFunction = function(e)
         {
+            if(mainCharacter.canMove)
+            {
                 switch(e.keyCode) {
                     case 37:
                         mainCharacter.setImg(mainCharacterLeftSheet);
@@ -721,17 +733,16 @@ var localGameState = Class.create({
                         mainCharacter.moveY(2);
                         mainCharacter.play(1);
                         break;
+                    case 73:
+                        this.stateMachine.changeState(2);
+                        this.mainCharacter.setMove(false);
+                        break;
+            }
                 }
         }
     },
     onEnter: function()
     {
-        var mainCharacterRightSheet = document.getElementById("mainCharacterRight");
-        var mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
-        var mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
-        var mainCharacterBackSheet = document.getElementById("mainCharacterBack");
-
-
         this.mapSystem1.generateMap([1,2],true);
         this.collideLayer = this.mapSystem1.getCollision();
         var mapDetails = this.mapSystem1.getMapDetails(1);
@@ -781,6 +792,87 @@ var localGameState = Class.create({
         this.mainCharacter.update(deltaTime);
     }
 });
+
+var inventoryState = Class.create({
+
+   initialize: function(canvas,stateMachine,mainCharacter)
+   {
+       this.canvas = canvas;
+       this.boundingRect = canvas.getBoundingClientRect();
+       this.stateMachine = stateMachine;
+       this.mainCharacter = mainCharacter;
+       this.inventory = mainCharacter.getInv();
+       this.one = false;
+       this.heading = new DialogueBox(30,0,30,10,canvas,"Inventory");
+   },
+    onEnter: function()
+    {
+        var tileColumn = 0;
+        var tileRow = 0;
+
+        for(var i = 0; i < this.inventory.length; i++ )
+        {
+            var pixelPosX = tileColumn * 5;
+            var pixelPosY = 10 + tileRow *5;
+
+            this.inventory[i].setLoc(pixelPosX,pixelPosY);
+
+            tileColumn += 1;
+            if(tileColumn >= 20)
+            {
+                tileColumn = 0;
+                tileRow += 1;
+            }
+        }
+    },
+    onExit: function()
+    {
+
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        for(var i = 0; i < this.inventory.length; i++)
+        {
+            if(this.inventory[i].contains(mX,mY) && !this.one)
+            {
+                var temp = document.createElement("div");
+                temp.style.position = "absolute";
+                temp.style.top = this.inventory[i].getY() + "px";
+                temp.style.left = this.inventory[i].getX()+this.boundingRect.left + "px";
+                temp.style.width = "150px";
+                temp.style.backgroundColor = "white";
+                temp.style.height = "90px";
+                temp.style.zIndex = 4;
+                temp.innerHTML += "Type: " + this.inventory[i].getType() + "<br/>";
+                temp.innerHTML += "Name: " + this.inventory[i].getName() + "<br/>";
+                if(this.inventory[i].getType() == "Armor")
+                {
+                    temp.innerHTML += "Defence: " + this.inventory[i].getDefence() + "<br/>";
+                }
+                else if(this.inventory[i].getType() == "Weapon")
+                {
+                    temp.innerHTML += "Damage: " + this.inventory[i].getDamage() + "<br/>";
+                    temp.innerHTML += "Speed: " + this.inventory[i].getSpd() + "<br/>";
+                }
+                temp.innerHTML += "Price: " + this.inventory[i].getPrice() + "<br/>";
+                temp.addEventListener("click",function(){
+                    temp.parentNode.removeChild(temp);
+                });
+                document.body.appendChild(temp);
+                this.one = true;
+            }
+        }
+    },
+    draw: function(g)
+    {
+        this.heading.draw(g);
+        for(var i = 0; i < this.inventory.length; i++)
+        {
+            this.inventory[i].draw(g);
+        }
+    }
+});
+
 
 var mapSystem = Class.create({
 

@@ -17,6 +17,8 @@ var mY;
 var previousTime;
 var timer;
 
+var testArmor;
+
 
 
 
@@ -31,20 +33,21 @@ window.onload = function()
     canvasRect = gameCanvas.getBoundingClientRect();
     graphics = gameCanvas.getContext("2d");
     gameCanvas.mouseDown = false;
-
-    dialogue = new DialogueBox(10,10,10,10,gameCanvas,"This is a huge test that should break it, but i might have fixed it.");
-
+    mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
-    mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterBackSheet = document.getElementById("mainCharacterBack");
-    mainCharacter = new AnimatedSprite(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3);
+    mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1],100,100);
     mainCharacter.play(-1);
 
     stateMachine = new StateMachine();
-    stateMachine.addState(new MainMenuState(gameCanvas,stateMachine));
+    stateMachine.addState(new MainMenuState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new localGameState(gameCanvas,stateMachine,mainCharacter));
+    stateMachine.addState(new inventoryState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
+
+    testArmor = new Armor(0,0,5,5,mainCharacterFrontSheet,gameCanvas,"Leather Armor",3,20);
+    mainCharacter.addItem(testArmor);
 
     /*window.addEventListener("keydown",function(e){
         switch(e.keyCode) {
