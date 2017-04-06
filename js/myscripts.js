@@ -57,6 +57,7 @@ window.onload = function()
     stateMachine.addState(new MainMenuState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new localGameState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new inventoryState(gameCanvas,stateMachine,mainCharacter));
+    stateMachine.addState(new statsState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
 
     testArmor = new Armor(0,0,5,5,armorLight,gameCanvas,"Leather Armor",3,20);

@@ -787,6 +787,9 @@ var localGameState = Class.create({
                         stateMachine.changeState(2);
                         mainCharacter.setMove(false);
                         break;
+                    case 80:
+                        stateMachine.changeState(3);
+                        mainCharacter.setMove(false);
             }
                 }
         }
@@ -997,6 +1000,8 @@ var statsState = Class.create({
         this.exp = this.stats[3];
         this.hp = mainCharacter.getCurrentHealth();
         this.staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,this.canvas);
+        this.staticWeaponEquip = new imageSprite(0,0,15,20,weaponDagger,this.canvas);
+        this.staticArmorEquip = new imageSprite(0,0,15,20,armorLight,this.canvas);
     },
     onEnter: function()
     {
@@ -1006,7 +1011,11 @@ var statsState = Class.create({
         this.agility = this.stats[2];
         this.exp = this.stats[3];
         this.hp = mainCharacter.getCurrentHealth();
-        this.staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,this.canvas);
+        this.staticFrontImage = new imageSprite(70,10,25,30,mainCharacterFrontStatic,this.canvas);
+        this.staticWeaponEquip = new imageSprite(50,0,15,20,weaponDagger,this.canvas);
+        this.staticArmorEquip = new imageSprite(50,30,15,20,armorLight,this.canvas);
+
+        console.log(this.staticFrontImage);
     },
     onExit: function()
     {
@@ -1015,10 +1024,24 @@ var statsState = Class.create({
     update: function(deltaTime,mX,mY)
     {
 
+        if(this.mainCharacter.getCurrentArmor() != null && this.staticArmorEquip.contains(mX,mY))
+        {
+            
+        }
+
     },
     draw: function(g)
     {
+        this.staticFrontImage.draw(g);
 
+        if(this.mainCharacter.getCurrentArmor() != null)
+        {
+            this.staticArmorEquip.draw(g);
+        }
+        if(this.mainCharacter.getCurrentWeapon() != null)
+        {
+            this.staticWeaponEquip.draw(g);
+        }
     }
 });
 
