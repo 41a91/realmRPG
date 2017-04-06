@@ -8,10 +8,12 @@ var mainCharacterLeftSheet;
 var mainCharacterFrontSheet;
 var mainCharacterBackSheet;
 var mainCharacterFrontStatic;
+
 var armorLight;
 var weaponDagger;
+var weaponUnequip;
+var armorUnequip;
 
-var dialogue;
 var stateMachine;
 
 var mX;
@@ -45,12 +47,15 @@ window.onload = function()
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
     mainCharacterBackSheet = document.getElementById("mainCharacterBack");
     mainCharacterFrontStatic = document.getElementById("mainCharacterFrontStatic");
-    staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,gameCanvas);
+
     armorLight = document.getElementById("ArmorLight");
     weaponDagger = document.getElementById("WeaponDagger");
+    weaponUnequip = document.getElementById("weaponUnequip");
+    armorUnequip = document.getElementById("armorUnequip");
 
 
-    mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1],100,100);
+
+    mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100);
     mainCharacter.play(-1);
 
     stateMachine = new StateMachine();
@@ -66,31 +71,6 @@ window.onload = function()
     mainCharacter.addItem(testArmor);
     mainCharacter.addItem(testSword);
     mainCharacter.addItem(testSword1);
-
-    /*window.addEventListener("keydown",function(e){
-        switch(e.keyCode) {
-            case 37:
-                mainCharacter.setImg(mainCharacterLeftSheet);
-                mainCharacter.moveX(-2);
-                mainCharacter.play(1);
-                break;
-            case 39:
-                mainCharacter.setImg(mainCharacterRightSheet);
-                mainCharacter.moveX(2);
-                mainCharacter.play(1);
-                break;
-            case 38:
-                mainCharacter.setImg(mainCharacterBackSheet);
-                mainCharacter.moveY(-2);
-                mainCharacter.play(1);
-                break;
-            case 40:
-                mainCharacter.setImg(mainCharacterFrontSheet);
-                mainCharacter.moveY(2);
-                mainCharacter.play(1);
-                break;
-        }
-    });*/
 
     gameCanvas.addEventListener("mousedown",function()
     {
@@ -108,20 +88,12 @@ window.onload = function()
     timer = setInterval(function(evt){
         var now = Date.now();
         var deltaTime = now - previousTime;
+
         graphics.setTransform(1,0,0,1,0,0);
         graphics.clearRect(0,0,gameCanvas.width,gameCanvas.height);
 
-       //mainCharacter.update(deltaTime);
-       //mainCharacter.draw(graphics);
-
-       //dialogue.draw(graphics);
-
-
         stateMachine.update(deltaTime,mX,mY);
         stateMachine.draw(graphics);
-
-
-
 
         previousTime = now;
     },100);

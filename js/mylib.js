@@ -142,11 +142,11 @@ var imageSprite = Class.create(Sprite,{
     },
     setImage: function(img)
     {
-        this.image = img;
+        this.img = img;
     },
     getImage: function()
     {
-        return 5;
+        return this.img;
     },
     draw: function($super,graphics){
         if(this.isVisible)
@@ -290,6 +290,10 @@ var Player = Class.create(AnimatedSprite,{
     {
         return this.currentHealth;
     },
+    getMaxHealth: function()
+    {
+      return this.maxHealth;
+    },
     getMana: function()
     {
         return this.currentMana;
@@ -323,6 +327,10 @@ var Player = Class.create(AnimatedSprite,{
     gainXP: function(xp)
     {
       this.stats[3] += xp;
+    },
+    getMaxExp: function()
+    {
+        return this.nextLevelXP;
     },
     takeDamage: function(dmg)
     {
@@ -404,7 +412,7 @@ var Player = Class.create(AnimatedSprite,{
       }
         this.removeItem(item);
     },
-    unequip: function(type)
+    unEquip: function(type)
     {
       if(type == "Weapon")
       {
@@ -905,8 +913,8 @@ var inventoryState = Class.create({
         this.return = null;
         this.clicked = 0;
         this.inventory = [];
-        mX = 0;
-        mY = 0;
+        mX = -5;
+        mY = -5;
     },
     update: function(deltaTime,mX,mY)
     {
@@ -999,9 +1007,23 @@ var statsState = Class.create({
         this.agility = this.stats[2];
         this.exp = this.stats[3];
         this.hp = mainCharacter.getCurrentHealth();
+        this.drawDropDown = false;
+        this.clickedItem = 0;
+        this.item = 0;
+        this.equip = new DialogueBox(0,0,10,5,this.canvas,"Equip");
+        this.stat = new DialogueBox(0,0,10,4,this.canvas,"");
+        this.return = new DialogueBox(0,0,10,5,this.canvas,"Return");
         this.staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,this.canvas);
         this.staticWeaponEquip = new imageSprite(0,0,15,20,weaponDagger,this.canvas);
         this.staticArmorEquip = new imageSprite(0,0,15,20,armorLight,this.canvas);
+        this.decoration1 = new Sprite(0,0,50,50,this.canvas);
+        this.decoration2 = new Sprite(0,0,20,20,this.canvas);
+        this.hpText = new DialogueBox(0,0,10,5,this.canvas,"Health: " + this.hp + "/" + this.mainCharacter.getMaxHealth());
+        this.strText = new DialogueBox(0,0,10,5,this.canvas,"Strength: " + this.str);
+        this.defText = new DialogueBox(0,0,10,5,this.canvas,"Defence: " + this.def);
+        this.agilityText = new DialogueBox(0,0,10,5,this.canvas,"Agility: " + this.agility);
+        this.expText = new DialogueBox(0,0,10,5,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
+
     },
     onEnter: function()
     {
@@ -1011,37 +1033,112 @@ var statsState = Class.create({
         this.agility = this.stats[2];
         this.exp = this.stats[3];
         this.hp = mainCharacter.getCurrentHealth();
+        this.unEquip = new DialogueBox(0,0,10,5,this.canvas,"Unequip");
+        this.stat = new DialogueBox(0,0,10,5,this.canvas,"");
+        this.return = new DialogueBox(79,89,20,10,this.canvas,"Return");
         this.staticFrontImage = new imageSprite(70,10,25,30,mainCharacterFrontStatic,this.canvas);
-        this.staticWeaponEquip = new imageSprite(50,0,15,20,weaponDagger,this.canvas);
-        this.staticArmorEquip = new imageSprite(50,30,15,20,armorLight,this.canvas);
-
-        console.log(this.staticFrontImage);
+        this.staticWeaponEquip = new imageSprite(50,0,15,20,weaponUnequip,this.canvas);
+        this.staticArmorEquip = new imageSprite(50,30,15,20,armorUnequip,this.canvas);
+        this.decoration1 = new Sprite(40,0,65,70,this.canvas);
+        this.decoration2 = new Sprite(0,0,40,70,this.canvas);
+        this.hpText = new DialogueBox(0,0,40,15,this.canvas,"Health: " + this.hp + "/" + this.mainCharacter.getMaxHealth());
+        this.strText = new DialogueBox(0,15,40,15,this.canvas,"Strength: " + this.str);
+        this.defText = new DialogueBox(0,30,40,15,this.canvas,"Defence: " + this.def);
+        this.agilityText = new DialogueBox(0,45,40,15,this.canvas,"Agility: " + this.agility);
+        this.expText = new DialogueBox(0,60,40,15,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
     },
     onExit: function()
     {
-
+        mX = -5;
+        mY = -5;
+        this.clickedItem = 0;
+        this.item = 0;
     },
     update: function(deltaTime,mX,mY)
     {
-
-        if(this.mainCharacter.getCurrentArmor() != null && this.staticArmorEquip.contains(mX,mY))
+    if(!this.drawDropDown)
+    {
+        if(this.mainCharacter.getCurrentArmor() != null)
         {
-            
-        }
+            this.staticArmorEquip.setImage(this.mainCharacter.getCurrentArmor().getImage());
+            if(this.staticArmorEquip.contains(mX,mY))
+            {
+                var x = this.staticArmorEquip.getX()/6;
+                var y = this.staticArmorEquip.getY()/4;
 
+                this.unEquip.setLoc(x,y);
+                this.stat.setLoc(x,y+5);
+
+                this.stat.setMessage("Defense: " + this.mainCharacter.getCurrentArmor().getDefence());
+                this.clickedItem = this.staticArmorEquip;
+                this.item = this.mainCharacter.getCurrentArmor();
+                this.drawDropDown = true;
+            }
+        }
+        if(this.mainCharacter.getCurrentWeapon() != null)
+        {
+            this.staticWeaponEquip.setImage(this.mainCharacter.getCurrentWeapon().getImage());
+            if(this.staticWeaponEquip.contains(mX,mY))
+            {
+                x = this.staticWeaponEquip.getX()/6;
+                y = this.staticWeaponEquip.getY()/4+5;
+
+                this.unEquip.setLoc(x,y);
+                this.stat.setLoc(x,y+5);
+
+                this.stat.setMessage("Damage: " + this.mainCharacter.getCurrentWeapon().getDamage());
+                this.clickedItem = this.staticWeaponEquip;
+                this.item = this.mainCharacter.getCurrentWeapon();
+                this.drawDropDown = true;
+            }
+        }
+    }
+        if(this.drawDropDown && this.clickedItem != 0)
+        {
+            if(this.unEquip.contains(mX,mY))
+            {
+                if(this.item.getType() == "Armor")
+                {
+                    this.clickedItem.setImage(armorUnequip);
+                }
+                else
+                {
+                    this.clickedItem.setImage(weaponUnequip);
+                }
+                    this.mainCharacter.unEquip(this.item.getType());
+                    this.drawDropDown = false;
+            }
+            if(!this.clickedItem.contains(mX,mY))
+            {
+                this.drawDropDown = false;
+            }
+        }
+        if(this.return.contains(mX,mY))
+        {
+            this.stateMachine.revertState();
+            this.mainCharacter.setMove(true);
+        }
     },
     draw: function(g)
     {
         this.staticFrontImage.draw(g);
+        this.return.draw(g);
+        this.staticArmorEquip.draw(g);
+        this.staticWeaponEquip.draw(g);
+        this.decoration1.draw(g);
+        this.decoration2.draw(g);
+        this.hpText.draw(g);
+        this.strText.draw(g);
+        this.defText.draw(g);
+        this.agilityText.draw(g);
+        this.expText.draw(g);
 
-        if(this.mainCharacter.getCurrentArmor() != null)
+        if(this.drawDropDown)
         {
-            this.staticArmorEquip.draw(g);
+            this.unEquip.draw(g);
+            this.stat.draw(g);
         }
-        if(this.mainCharacter.getCurrentWeapon() != null)
-        {
-            this.staticWeaponEquip.draw(g);
-        }
+
     }
 });
 
