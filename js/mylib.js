@@ -316,7 +316,7 @@ var Player = Class.create(AnimatedSprite,{
         {
             if(itemName.getName() == this.inv[i].getName())
             {
-                this.inv.splice(i,i+1);
+                this.inv.splice(i,1);
             }
         }
     },
@@ -871,7 +871,10 @@ var inventoryState = Class.create({
         this.inventory = mainCharacter.getInv();
         this.one = false;
 
-
+        this.updateInv();
+    },
+    updateInv: function()
+    {
         var tileColumn = 0;
         var tileRow = 0;
 
@@ -940,6 +943,7 @@ var inventoryState = Class.create({
                         this.mainCharacter.equip(this.clicked);
                         this.one = false;
                         this.inventory = this.mainCharacter.getInv();
+                        this.updateInv();
                     }
                 }
                 else if(this.dropItem.contains(mX,mY))
@@ -947,6 +951,7 @@ var inventoryState = Class.create({
                     this.mainCharacter.removeItem(this.clicked);
                     this.one = false;
                     this.inventory = this.mainCharacter.getInv();
+                    this.updateInv();
                 }
                 if(!this.clicked.contains(mX,mY))
                 {
@@ -974,6 +979,46 @@ var inventoryState = Class.create({
             this.dropItem.draw(g);
             this.stat.draw(g);
         }
+    }
+});
+
+var statsState = Class.create({
+
+    initialize: function(canvas,stateMachine,mainCharacter)
+    {
+        this.canvas = canvas;
+        this.boundingRect = canvas.getBoundingClientRect();
+        this.stateMachine = stateMachine;
+        this.mainCharacter = mainCharacter;
+        this.stats = mainCharacter.getStats();
+        this.str = this.stats[0];
+        this.def = this.stats[1];
+        this.agility = this.stats[2];
+        this.exp = this.stats[3];
+        this.hp = mainCharacter.getCurrentHealth();
+        this.staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,this.canvas);
+    },
+    onEnter: function()
+    {
+        this.stats = mainCharacter.getStats();
+        this.str = this.stats[0];
+        this.def = this.stats[1];
+        this.agility = this.stats[2];
+        this.exp = this.stats[3];
+        this.hp = mainCharacter.getCurrentHealth();
+        this.staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,this.canvas);
+    },
+    onExit: function()
+    {
+
+    },
+    update: function(deltaTime,mX,mY)
+    {
+
+    },
+    draw: function(g)
+    {
+
     }
 });
 

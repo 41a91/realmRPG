@@ -7,6 +7,7 @@ var mainCharacterRightSheet;
 var mainCharacterLeftSheet;
 var mainCharacterFrontSheet;
 var mainCharacterBackSheet;
+var mainCharacterFrontStatic;
 var armorLight;
 var weaponDagger;
 
@@ -21,6 +22,7 @@ var timer;
 
 var testArmor;
 var testSword;
+var testSword1;
 
 
 
@@ -42,6 +44,8 @@ window.onload = function()
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
     mainCharacterBackSheet = document.getElementById("mainCharacterBack");
+    mainCharacterFrontStatic = document.getElementById("mainCharacterFrontStatic");
+    staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,gameCanvas);
     armorLight = document.getElementById("ArmorLight");
     weaponDagger = document.getElementById("WeaponDagger");
 
@@ -57,8 +61,10 @@ window.onload = function()
 
     testArmor = new Armor(0,0,5,5,armorLight,gameCanvas,"Leather Armor",3,20);
     testSword = new Weapon(0,0,5,5,weaponDagger,gameCanvas,"Dagger",6,2,10);
+    testSword1 = new Weapon(0,0,5,5,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
     mainCharacter.addItem(testArmor);
     mainCharacter.addItem(testSword);
+    mainCharacter.addItem(testSword1);
 
     /*window.addEventListener("keydown",function(e){
         switch(e.keyCode) {
