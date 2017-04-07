@@ -741,7 +741,7 @@ var MainMenuState = Class.create({
                 section.style.display = "block";
                 this.inPHP = true;
                 $.ajax({
-                    url: "php/view/createNewSave.php?inv='fire'",
+                    url: "php/view/createNewSave.php",
                     cache: false
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);
@@ -825,6 +825,7 @@ var localGameState = Class.create({
     },
     onEnter: function()
     {
+        this.mapSystem1 = new mapSystem(0,0,this.canvas);
         this.mapSystem1.generateMap([1,2],true);
         this.collideLayer = this.mapSystem1.getCollision();
         var mapDetails = this.mapSystem1.getMapDetails(1);
@@ -835,8 +836,9 @@ var localGameState = Class.create({
     },
     onExit: function()
     {
-        //this.mainCharacter = null;
         window.removeEventListener("keydown",this.eventFunction);
+        this.collideLayer = [];
+        this.mainCharacter.setMove(false);
     },
     draw: function(g)
     {
@@ -1322,8 +1324,30 @@ var mapSystem = Class.create({
             }
             this.generateMap(type,layered);
             return playerXY;
+    },
+    getCurrentMap: function()
+    {
+        return [this.type,this.isLayered];
+    },
+    update: function(deltaTime)
+    {
+
     }
 });
+
+var battleSystem = Class.create({
+
+   initialize: function()
+   {
+       this.battleStack = [];
+   }
+
+
+
+
+});
+
+
 
 function clamp(value, min, max)
 {
