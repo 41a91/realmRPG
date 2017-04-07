@@ -303,6 +303,15 @@ var Player = Class.create(AnimatedSprite,{
     {
       return this.level;
     },
+    getTotalSpd: function()
+    {
+      var spd = this.getStats()[2];
+        if(this.currentWeapon != null)
+        {
+            spd += this.currentWeapon.getSpd();
+        }
+        return spd;
+    },
     getCurrentMana: function()
     {
         return this.currentMana;
@@ -1335,15 +1344,68 @@ var mapSystem = Class.create({
     }
 });
 
-var battleSystem = Class.create({
+var battleState = Class.create({
 
-   initialize: function()
+   initialize: function(canvas,mainCharacter)
    {
-       this.battleStack = [];
-   }
+       this.actions = [];
+       this.entities = [];
+       this.battleSystem = new StateMachine();
+   },
+    onEnter: function()
+    {
 
+    },
+    onExit: function()
+    {
 
+    },
+    update: function(deltaTime)
+    {
+        this.battleSystem.update(deltaTime);
+    },
+    draw: function(g)
+    {
+        this.battleSystem.draw(g);
+    }
+});
 
+var battleTick = Class.create({
+
+   initialize: function(stateMachine,actions)
+   {
+       this.stateMachine = stateMachine;
+       this.actions = actions;
+   },
+    onEnter: function()
+    {
+
+    },
+    onExit: function()
+    {
+
+    },
+    update: function(deltaTime)
+    {
+        for(var i = 0; i < this.actions.length; i++)
+        {
+            this.actions[i].update(deltaTime);
+        }
+    },
+    draw: function()
+    {
+
+    }
+});
+
+var pAction = Class.create({
+
+    initialize: function(mainCharacter)
+    {
+        this.mainCharacter = mainCharacter;
+        this.spd = mainCharacter.getTotalSpd();
+        this.count = 3;
+    }
 
 });
 
