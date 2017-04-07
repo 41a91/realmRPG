@@ -251,12 +251,13 @@ var AnimatedSprite = Class.create(imageSprite,{
 
 var Player = Class.create(AnimatedSprite,{
 
-   initialize: function($super,x,y,w,h,container,img,frameCount,fps,stats,health,mana)
+   initialize: function($super,x,y,w,h,container,img,frameCount,fps,stats,health,mana,username)
    {
        $super(x,y,w,h,container,img,frameCount,fps);
 
        this.inv = [];
        this.stats = stats;
+       this.username = username;
        // 0: str 1: def 2: agility 3: exp
        this.alive = true;
        this.maxHealth = health;
@@ -286,6 +287,10 @@ var Player = Class.create(AnimatedSprite,{
     {
         return this.stats;
     },
+    getUser: function()
+    {
+      return this.username;
+    },
     getCurrentHealth: function()
     {
         return this.currentHealth;
@@ -294,9 +299,17 @@ var Player = Class.create(AnimatedSprite,{
     {
       return this.maxHealth;
     },
-    getMana: function()
+    getLevel: function()
+    {
+      return this.level;
+    },
+    getCurrentMana: function()
     {
         return this.currentMana;
+    },
+    getMaxMana: function()
+    {
+      return this.maxMana;
     },
     getSpells: function()
     {
@@ -435,7 +448,7 @@ var Player = Class.create(AnimatedSprite,{
 
         if(this.stats[3] >= this.nextLevelXP)
         {
-            this.level++;
+            this.level += 1;
             this.levelUp();
             this.nextLevelXP += (500*this.level);
         }
@@ -672,6 +685,14 @@ var StateMachine = Class.create({
     {
         var oldState = this.mStack.pop();
         oldState.onExit();
+    },
+    returnToMenu: function()
+    {
+        for(var i = 0; i < this.mStack.length; i++)
+        {
+            var oldState = this.mStack.pop();
+            oldState.onExit();
+        }
     }
 });
 
@@ -808,7 +829,7 @@ var localGameState = Class.create({
         this.collideLayer = this.mapSystem1.getCollision();
         var mapDetails = this.mapSystem1.getMapDetails(1);
         this.mainCharacter.setLoc(mapDetails[2],mapDetails[3]);
-
+        this.mainCharacter.setMove(true);
         window.addEventListener("keydown",this.eventFunction);
 
     },
@@ -1007,21 +1028,29 @@ var statsState = Class.create({
         this.agility = this.stats[2];
         this.exp = this.stats[3];
         this.hp = mainCharacter.getCurrentHealth();
+        this.mana = mainCharacter.getCurrentMana();
+        this.level = mainCharacter.getLevel();
         this.drawDropDown = false;
         this.clickedItem = 0;
         this.item = 0;
+        this.drawables = [];
         this.equip = new DialogueBox(0,0,10,5,this.canvas,"Equip");
         this.stat = new DialogueBox(0,0,10,4,this.canvas,"");
         this.return = new DialogueBox(0,0,10,5,this.canvas,"Return");
+        this.quit = new DialogueBox(0,0,10,5,this.canvas,"Exit Game");
         this.staticFrontImage = new imageSprite(0,0,25,30,mainCharacterFrontStatic,this.canvas);
         this.staticWeaponEquip = new imageSprite(0,0,15,20,weaponDagger,this.canvas);
         this.staticArmorEquip = new imageSprite(0,0,15,20,armorLight,this.canvas);
+        this.saveButton = new DialogueBox(0,0,10,5,this.canvas,"Save Game");
+        this.usernameText = new DialogueBox(0,0,10,5,this.canvas,this.mainCharacter.getUser());
         this.decoration1 = new Sprite(0,0,50,50,this.canvas);
         this.decoration2 = new Sprite(0,0,20,20,this.canvas);
         this.hpText = new DialogueBox(0,0,10,5,this.canvas,"Health: " + this.hp + "/" + this.mainCharacter.getMaxHealth());
+        this.manaText = new DialogueBox(0,0,10,5,this.canvas,"Mana: " + this.mana + "/" + this.mainCharacter.getMaxMana());
         this.strText = new DialogueBox(0,0,10,5,this.canvas,"Strength: " + this.str);
         this.defText = new DialogueBox(0,0,10,5,this.canvas,"Defence: " + this.def);
         this.agilityText = new DialogueBox(0,0,10,5,this.canvas,"Agility: " + this.agility);
+        this.levelText = new DialogueBox(0,0,10,5,this.canvas,"Level: " + this.level);
         this.expText = new DialogueBox(0,0,10,5,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
 
     },
@@ -1032,20 +1061,28 @@ var statsState = Class.create({
         this.def = this.stats[1];
         this.agility = this.stats[2];
         this.exp = this.stats[3];
+        this.level = mainCharacter.getLevel();
         this.hp = mainCharacter.getCurrentHealth();
+        this.mana = mainCharacter.getCurrentMana();
         this.unEquip = new DialogueBox(0,0,10,5,this.canvas,"Unequip");
         this.stat = new DialogueBox(0,0,10,5,this.canvas,"");
         this.return = new DialogueBox(79,89,20,10,this.canvas,"Return");
+        this.quit = new DialogueBox(35,89,20,10,this.canvas,"Exit Game");
         this.staticFrontImage = new imageSprite(70,10,25,30,mainCharacterFrontStatic,this.canvas);
         this.staticWeaponEquip = new imageSprite(50,0,15,20,weaponUnequip,this.canvas);
         this.staticArmorEquip = new imageSprite(50,30,15,20,armorUnequip,this.canvas);
+        this.saveButton = new DialogueBox(10,89,20,10,this.canvas,"Save Game");
         this.decoration1 = new Sprite(40,0,65,70,this.canvas);
         this.decoration2 = new Sprite(0,0,40,70,this.canvas);
-        this.hpText = new DialogueBox(0,0,40,15,this.canvas,"Health: " + this.hp + "/" + this.mainCharacter.getMaxHealth());
-        this.strText = new DialogueBox(0,15,40,15,this.canvas,"Strength: " + this.str);
-        this.defText = new DialogueBox(0,30,40,15,this.canvas,"Defence: " + this.def);
-        this.agilityText = new DialogueBox(0,45,40,15,this.canvas,"Agility: " + this.agility);
-        this.expText = new DialogueBox(0,60,40,15,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
+        this.usernameText = new DialogueBox(72,50,20,8,this.canvas,this.mainCharacter.getUser());
+        this.hpText = new DialogueBox(0,0,40,10,this.canvas,"Health: " + this.hp + "/" + this.mainCharacter.getMaxHealth());
+        this.manaText = new DialogueBox(0,10,40,10,this.canvas,"Mana: " + this.mana + "/" + this.mainCharacter.getMaxMana());
+        this.strText = new DialogueBox(0,20,40,10,this.canvas,"Strength: " + this.str);
+        this.defText = new DialogueBox(0,30,40,10,this.canvas,"Defence: " + this.def);
+        this.agilityText = new DialogueBox(0,40,40,10,this.canvas,"Agility: " + this.agility);
+        this.levelText = new DialogueBox(0,50,40,10,this.canvas,"Level: " + this.level);
+        this.expText = new DialogueBox(0,60,40,10,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
+        this.drawables.push(this.return,this.quit,this.saveButton,this.decoration1,this.decoration2,this.usernameText,this.hpText,this.strText,this.defText,this.agilityText,this.levelText,this.expText,this.staticFrontImage,this.manaText);
     },
     onExit: function()
     {
@@ -1053,6 +1090,7 @@ var statsState = Class.create({
         mY = -5;
         this.clickedItem = 0;
         this.item = 0;
+        this.drawables = [];
     },
     update: function(deltaTime,mX,mY)
     {
@@ -1118,21 +1156,20 @@ var statsState = Class.create({
             this.stateMachine.revertState();
             this.mainCharacter.setMove(true);
         }
+        if(this.quit.contains(mX,mY))
+        {
+        this.stateMachine.returnToMenu();
+        }
     },
     draw: function(g)
     {
-        this.staticFrontImage.draw(g);
-        this.return.draw(g);
+        for(var i = 0; i < this.drawables.length; i++)
+        {
+         this.drawables[i].draw(g);
+        }
+
         this.staticArmorEquip.draw(g);
         this.staticWeaponEquip.draw(g);
-        this.decoration1.draw(g);
-        this.decoration2.draw(g);
-        this.hpText.draw(g);
-        this.strText.draw(g);
-        this.defText.draw(g);
-        this.agilityText.draw(g);
-        this.expText.draw(g);
-
         if(this.drawDropDown)
         {
             this.unEquip.draw(g);

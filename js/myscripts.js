@@ -55,7 +55,7 @@ window.onload = function()
 
 
 
-    mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100);
+    mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
     mainCharacter.play(-1);
 
     stateMachine = new StateMachine();
