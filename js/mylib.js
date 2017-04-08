@@ -464,6 +464,76 @@ var Player = Class.create(AnimatedSprite,{
     }
 });
 
+var Enemy = Class.create(AnimatedSprite,{
+
+    initialize: function($super,x,y,w,h,container,img,frameCount,fps,stats,health,mana)
+    {
+        $super(x,y,w,h,container,img,frameCount,fps);
+
+        this.stats = stats;
+        // 0: str 1: def 2: agility 3: exp
+        this.alive = true;
+        this.maxHealth = health;
+        this.currentHealth = health;
+        this.maxMana = mana;
+        this.currentMana = mana;
+        this.spells = [];
+    },
+    getCurrentHealth: function()
+    {
+        return this.currentHealth;
+    },
+    getCurrentMana: function()
+    {
+        return this.currentMana;
+    },
+    getMaxHealth: function()
+    {
+        return this.maxHealth;
+    },
+    getMaxMana: function()
+    {
+        return this.maxMana;
+    },
+    getStats: function()
+    {
+        return this.stats;
+    },
+    isAlive: function()
+    {
+        return this.alive;
+    },
+    getSpells: function()
+    {
+        return this.spells;
+    },
+    takeDamage: function(dx)
+    {
+        this.currentHealth -= dx;
+        if(this.currentHealth <= 0)
+        {
+            this.currentHealth = 0;
+            this.alive = false;
+        }
+    },
+    loseMana: function(dx)
+    {
+        this.currentMana -= dx;
+        if(this.currentMana <= 0)
+        {
+            this.currentMana = 0;
+        }
+    },
+    heal: function(dx)
+    {
+        this.currentHealth += dx;
+        if(this.currentHealth > this.maxHealth)
+        {
+            this.currentHealth = this.maxHealth;
+        }
+    }
+});
+
 var Weapon = Class.create(imageSprite,{
 
    initialize: function($super,x,y,w,h,img,container,name,spd,damage,price)
@@ -1346,10 +1416,11 @@ var mapSystem = Class.create({
 
 var battleState = Class.create({
 
-   initialize: function(canvas,mainCharacter)
+   initialize: function(canvas,mainCharacter,enemy)
    {
        this.actions = [];
-       this.entities = [];
+       this.mainCharacter = mainCharacter;
+       this.enemy = enemy;
        this.battleSystem = new StateMachine();
    },
     onEnter: function()
@@ -1391,10 +1462,15 @@ var battleTick = Class.create({
         {
             this.actions[i].update(deltaTime);
         }
+        if(this.actions[this.actions.length-1].isReady())
+        {
+            var action = this.actions.pop();
+            this.stateMachine.changeState(1,action);
+        }
     },
-    draw: function()
+    draw: function(g)
     {
-
+        //add in the actions so that you can choose your action with gui
     }
 });
 
@@ -1404,9 +1480,16 @@ var pAction = Class.create({
     {
         this.mainCharacter = mainCharacter;
         this.spd = mainCharacter.getTotalSpd();
-        this.count = 3;
-    }
+        this.isReady = false;
+    },
+    isReady: function()
+    {
+        return this.isReady;
+    },
+    update: function(deltaTime)
+    {
 
+    }
 });
 
 
