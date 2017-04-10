@@ -8,6 +8,7 @@ var mainCharacterLeftSheet;
 var mainCharacterFrontSheet;
 var mainCharacterBackSheet;
 var mainCharacterFrontStatic;
+var mainCharacterBattleStance;
 
 var armorLight;
 var weaponDagger;
@@ -47,13 +48,12 @@ window.onload = function()
     mainCharacterLeftSheet = document.getElementById("mainCharacterLeft");
     mainCharacterBackSheet = document.getElementById("mainCharacterBack");
     mainCharacterFrontStatic = document.getElementById("mainCharacterFrontStatic");
+    mainCharacterBattleStance = document.getElementById("mainCharacterBattleStance");
 
     armorLight = document.getElementById("ArmorLight");
     weaponDagger = document.getElementById("WeaponDagger");
     weaponUnequip = document.getElementById("weaponUnequip");
     armorUnequip = document.getElementById("armorUnequip");
-
-
 
     mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
     mainCharacter.play(-1);
@@ -63,11 +63,12 @@ window.onload = function()
     stateMachine.addState(new localGameState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new inventoryState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new statsState(gameCanvas,stateMachine,mainCharacter));
+    stateMachine.addState(new battleState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
 
-    testArmor = new Armor(0,0,5,5,armorLight,gameCanvas,"Leather Armor",3,20);
-    testSword = new Weapon(0,0,5,5,weaponDagger,gameCanvas,"Dagger",6,2,10);
-    testSword1 = new Weapon(0,0,5,5,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
+    testArmor = new Armor(0,0,10,10,armorLight,gameCanvas,"Leather Armor",3,20);
+    testSword = new Weapon(0,0,10,10,weaponDagger,gameCanvas,"Dagger",6,2,10);
+    testSword1 = new Weapon(0,0,10,10,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
     mainCharacter.addItem(testArmor);
     mainCharacter.addItem(testSword);
     mainCharacter.addItem(testSword1);

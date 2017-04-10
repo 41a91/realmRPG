@@ -1241,6 +1241,10 @@ var statsState = Class.create({
         {
         this.stateMachine.returnToMenu();
         }
+        if(this.saveButton.contains(mX,mY))
+        {
+            this.stateMachine.changeState(4);
+        }
     },
     draw: function(g)
     {
@@ -1416,27 +1420,43 @@ var mapSystem = Class.create({
 
 var battleState = Class.create({
 
-   initialize: function(canvas,mainCharacter,enemy)
+   initialize: function(canvas,stateMachine,mainCharacter,enemy)
    {
        this.actions = [];
        this.mainCharacter = mainCharacter;
        this.enemy = enemy;
+       this.canvas = canvas;
+       this.stateMachine = stateMachine;
        this.battleSystem = new StateMachine();
+       this.mBattleStance = new imageSprite(0,0,8,8,mainCharacterBattleStance,canvas);
+       var pAction = new PAction(this.mainCharacter,this.canvas);
+       this.actions.push(pAction);
+       this.actions = mergeSort(this.actions);
+       this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
+       this.battleSystem.changeState(0);
    },
     onEnter: function()
     {
+        var pAction = new PAction(this.mainCharacter,this.canvas);
+        this.actions.push(pAction);
 
+        this.actions = mergeSort(this.actions);
+
+        this.mBattleStance = new imageSprite(70,50,20,20,mainCharacterBattleStance,this.canvas);
+        this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
+        this.battleSystem.changeState(0);
     },
     onExit: function()
     {
 
     },
-    update: function(deltaTime)
+    update: function(deltaTime,mX,mY)
     {
-        this.battleSystem.update(deltaTime);
+        this.battleSystem.update(deltaTime,mX,mY);
     },
     draw: function(g)
     {
+        this.mBattleStance.draw(g);
         this.battleSystem.draw(g);
     }
 });
@@ -1445,8 +1465,9 @@ var battleTick = Class.create({
 
    initialize: function(stateMachine,actions)
    {
-       this.stateMachine = stateMachine;
+       this.battleSystem = stateMachine;
        this.actions = actions;
+
    },
     onEnter: function()
     {
@@ -1456,39 +1477,85 @@ var battleTick = Class.create({
     {
 
     },
-    update: function(deltaTime)
+    update: function(deltaTime,mX,mY)
     {
         for(var i = 0; i < this.actions.length; i++)
         {
-            this.actions[i].update(deltaTime);
+            this.actions[i].update(deltaTime,mX,mY);
         }
-        if(this.actions[this.actions.length-1].isReady())
+        if(this.actions[this.actions.length-1].getReady())
         {
             var action = this.actions.pop();
-            this.stateMachine.changeState(1,action);
+            this.battleSystem.changeState(1,action);
         }
     },
     draw: function(g)
     {
         //add in the actions so that you can choose your action with gui
+        for(var i = 0; i < this.actions.length; i++)
+        {
+            this.actions[i].draw(g);
+        }
     }
 });
 
-var pAction = Class.create({
+var PAction = Class.create({
 
-    initialize: function(mainCharacter)
+    initialize: function(mainCharacter,canvas)
     {
         this.mainCharacter = mainCharacter;
-        this.spd = mainCharacter.getTotalSpd();
+       this.spd = this.mainCharacter.getTotalSpd();
         this.isReady = false;
+        this.actionType = -1;
+        this.canvas = canvas;
+        this.attackButton = new DialogueBox(70,70,15,6,canvas,"Attack");
+        this.spellButton = new DialogueBox(85,70,15,6,canvas,"Spells");
+        this.spells = [];
+        this.one = false;
     },
-    isReady: function()
+    getReady: function()
     {
         return this.isReady;
     },
-    update: function(deltaTime)
+    getSpd: function()
     {
-
+      return this.spd;
+    },
+    getActionType: function()
+    {
+      return this.actionType;
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        if(this.attackButton.contains(mX,mY) && !this.one)
+        {
+            this.actionType = 0;
+            this.isReady = true;
+        }
+        else if(this.spellButton.contains(mX,mY) && !this.one)
+        {
+            this.actionType = 1;
+            console.log("click");
+            this.one = true;
+            this.spells = this.mainCharacter.getSpells();
+        }
+        if(!this.spellButton.contains(mX,mY))
+        {
+            this.one = false;
+            this.spells = [];
+        }
+    },
+    draw: function(g)
+    {
+        this.attackButton.draw(g);
+        this.spellButton.draw(g);
+        if(this.spells != [])
+        {
+            for(var i = 0; i < this.spells.length; i++)
+            {
+                this.spells[i].draw(g);
+            }
+        }
     }
 });
 
@@ -1533,6 +1600,45 @@ function collisionDirection(character,tile)
     }
     //console.log("topCall: " + topColl + " bottColl: " + bottomColl + " rightColl: " + rightColl + " leftColl: " + leftColl);
     //console.log("x: " + character.getXSpd() + " y: " + character.getYSpd());
+};
+function mergeSort(actions)
+{
+
+    if(actions.length < 2)
+    {
+        return actions;
+    }
+
+    var middle = parseInt(actions.length/2);
+    var left = actions.slice(0,middle);
+    var right = actions.slice(middle,actions.length);
+
+   return merge(mergeSort(left),mergeSort(right));
+};
+function merge(left,right)
+{
+    var sortedActions = [];
+
+    while(left.length && right.length)
+    {
+        if(left[0].getSpd() <= right[0].getSpd())
+        {
+            sortedActions.push(left.shift());
+        }
+        else
+        {
+            sortedActions.push(right.shift());
+        }
+    }
+    while(left.length)
+    {
+        sortedActions.push(left.shift());
+    }
+    while(right.length)
+    {
+        sortedActions.push(right.shift());
+    }
+    return sortedActions;
 };
 
 //Phaser
