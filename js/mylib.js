@@ -1027,7 +1027,7 @@ var inventoryState = Class.create({
 
                 this.clicked = this.inventory[i];
                 var x = this.inventory[i].getX()/5;
-                var y = this.inventory[i].getY()/4;
+                var y = this.inventory[i].getY()/3;
 
                 this.equip.setLoc(x,y);
                 this.dropItem.setLoc(x,y+5);
@@ -1479,15 +1479,19 @@ var battleTick = Class.create({
     },
     update: function(deltaTime,mX,mY)
     {
-        for(var i = 0; i < this.actions.length; i++)
+        if(this.actions.length)
         {
-            this.actions[i].update(deltaTime,mX,mY);
+            for(var i = 0; i < this.actions.length; i++)
+            {
+                this.actions[i].update(deltaTime,mX,mY);
+            }
+            if(this.actions[this.actions.length-1].getReady())
+            {
+                var action = this.actions.pop();
+                this.battleSystem.changeState(1,action);
+            }
         }
-        if(this.actions[this.actions.length-1].getReady())
-        {
-            var action = this.actions.pop();
-            this.battleSystem.changeState(1,action);
-        }
+
     },
     draw: function(g)
     {
@@ -1558,7 +1562,6 @@ var PAction = Class.create({
         }
     }
 });
-
 
 
 function clamp(value, min, max)

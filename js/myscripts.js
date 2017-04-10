@@ -66,9 +66,9 @@ window.onload = function()
     stateMachine.addState(new battleState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
 
-    testArmor = new Armor(0,0,10,10,armorLight,gameCanvas,"Leather Armor",3,20);
-    testSword = new Weapon(0,0,10,10,weaponDagger,gameCanvas,"Dagger",6,2,10);
-    testSword1 = new Weapon(0,0,10,10,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
+    testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);
+    testSword = new Weapon(0,0,8,8,weaponDagger,gameCanvas,"Dagger",6,2,10);
+    testSword1 = new Weapon(0,0,8,8,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
     mainCharacter.addItem(testArmor);
     mainCharacter.addItem(testSword);
     mainCharacter.addItem(testSword1);
