@@ -825,6 +825,17 @@ var MainMenuState = Class.create({
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);
                 });
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function()
+                {
+                    if(this.readyState == 4 && this.status == 200)
+                    {
+                        section.innerHTML = this.responseText;
+                    }
+                };
+                xhttp.open("GET","php/control/loadGameController.php",true);
+                xhttp.send();
+
             }
         }
 
@@ -1529,6 +1540,26 @@ var PAction = Class.create({
     {
       return this.actionType;
     },
+    updateSpells: function()
+    {
+        var tileColumn = 0;
+        var tileRow = 0;
+
+        for(var i = 0; i < this.spells.length; i++ )
+        {
+            var pixelPosX = this.spellButton.getX() + tileColumn * 5;
+            var pixelPosY = this.spellButton.getY() + 10 + tileRow *5;
+
+            this.spells[i].setLoc(pixelPosX,pixelPosY);
+
+            tileColumn += 2;
+            if(tileColumn >= 5)
+            {
+                tileColumn = 0;
+                tileRow += 1;
+            }
+        }
+    },
     update: function(deltaTime,mX,mY)
     {
         if(this.attackButton.contains(mX,mY) && !this.one)
@@ -1542,6 +1573,7 @@ var PAction = Class.create({
             console.log("click");
             this.one = true;
             this.spells = this.mainCharacter.getSpells();
+            this.updateSpells();
         }
         if(!this.spellButton.contains(mX,mY))
         {
