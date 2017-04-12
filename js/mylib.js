@@ -324,6 +324,10 @@ var Player = Class.create(AnimatedSprite,{
     {
         return this.spells;
     },
+    addSpell: function(spell)
+    {
+      this.spells.push(spell);
+    },
     getCurrentWeapon: function()
     {
         return this.currentWeapon;
@@ -1547,8 +1551,8 @@ var PAction = Class.create({
 
         for(var i = 0; i < this.spells.length; i++ )
         {
-            var pixelPosX = this.spellButton.getX() + tileColumn * 5;
-            var pixelPosY = this.spellButton.getY() + 10 + tileRow *5;
+            var pixelPosX = this.spellButton.getActualX() + tileColumn * 5;
+            var pixelPosY = this.spellButton.getActualY()+ 10 + tileRow *5;
 
             this.spells[i].setLoc(pixelPosX,pixelPosY);
 

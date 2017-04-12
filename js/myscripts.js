@@ -15,6 +15,8 @@ var weaponDagger;
 var weaponUnequip;
 var armorUnequip;
 
+var fireSpell;
+
 var stateMachine;
 
 var mX;
@@ -55,8 +57,12 @@ window.onload = function()
     weaponUnequip = document.getElementById("weaponUnequip");
     armorUnequip = document.getElementById("armorUnequip");
 
+    fireSpell = document.getElementById("fireSpell");
+
     mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
     mainCharacter.play(-1);
+
+    mainCharacter.addSpell(new Spell(0,0,5,5,fireSpell,gameCanvas,"Fire Ball",8,30));
 
 
 
