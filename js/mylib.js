@@ -303,6 +303,15 @@ var Player = Class.create(AnimatedSprite,{
     {
       return this.level;
     },
+    getTotalDamage: function()
+    {
+      var str = this.getStats()[0];
+        if(this.currentWeapon != null)
+        {
+            str += this.currentWeapon.getDamage();
+        }
+        return str;
+    },
     getTotalSpd: function()
     {
       var spd = this.getStats()[2];
@@ -1444,7 +1453,7 @@ var battleState = Class.create({
        this.stateMachine = stateMachine;
        this.battleSystem = new StateMachine();
        this.mBattleStance = new imageSprite(0,0,8,8,mainCharacterBattleStance,canvas);
-       var pAction = new PAction(this.mainCharacter,this.canvas);
+       var pAction = new PAction(this.mainCharacter,this.enemy,this.canvas);
        this.actions.push(pAction);
        this.actions = mergeSort(this.actions);
        this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
@@ -1456,10 +1465,7 @@ var battleState = Class.create({
    },
     onEnter: function(enemy)
     {
-        var pAction = new PAction(this.mainCharacter,this.canvas);
-        this.actions.push(pAction);
 
-        this.actions = mergeSort(this.actions);
 
         this.enemy = enemy;
         this.enemy.setLoc(20,10);
@@ -1469,7 +1475,12 @@ var battleState = Class.create({
         this.enemyCurrentHP = new imageSprite(15,5,((this.enemy.getCurrentHealth()/this.enemy.getMaxHealth())*30),3,redHealth,this.canvas);
         this.enemyMaxHP = new Sprite(15,5,30,3,this.canvas);
 
+        var pAction = new PAction(this.mainCharacter,this.enemy,this.canvas);
+        this.actions.push(pAction);
+        this.actions = mergeSort(this.actions);
+
         this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
+        this.battleSystem.addState(new battleAction(this.battleSystem));
         this.battleSystem.changeState(0);
     },
     onExit: function()
@@ -1480,6 +1491,7 @@ var battleState = Class.create({
     {
         this.battleSystem.update(deltaTime,mX,mY);
         this.playerCurrentHP.setWidth((this.mainCharacter.getCurrentHealth()/this.mainCharacter.getMaxHealth())*30);
+        this.enemyCurrentHP.setWidth((this.enemy.getCurrentHealth()/this.enemy.getMaxHealth())*30);
     },
     draw: function(g)
     {
@@ -1490,6 +1502,10 @@ var battleState = Class.create({
         this.mBattleStance.draw(g);
         this.enemy.draw(g);
         this.battleSystem.draw(g);
+    },
+    addAction: function(action)
+    {
+        this.actions.push(action);
     }
 });
 
@@ -1520,6 +1536,7 @@ var battleTick = Class.create({
             if(this.actions[this.actions.length-1].getReady())
             {
                 var action = this.actions.pop();
+                //this.battleSystem.addAction(new EAction());
                 this.battleSystem.changeState(1,action);
             }
         }
@@ -1537,25 +1554,38 @@ var battleTick = Class.create({
 
 var PAction = Class.create({
 
-    initialize: function(mainCharacter,canvas)
+    initialize: function(mainCharacter,enemy,canvas)
     {
         this.mainCharacter = mainCharacter;
-       this.spd = this.mainCharacter.getTotalSpd();
+        this.spd = this.mainCharacter.getTotalSpd();
         this.isReady = false;
         this.actionType = -1;
         this.canvas = canvas;
-        this.attackButton = new DialogueBox(70,70,15,6,canvas,"Attack");
-        this.spellButton = new DialogueBox(85,70,15,6,canvas,"Spells");
+        this.attackButton = new DialogueBox(70,70,15,6,this.canvas,"Attack");
+        this.spellButton = new DialogueBox(85,70,15,6,this.canvas,"Spells");
         this.spells = [];
         this.one = false;
+        this.type = "player";
     },
     getReady: function()
     {
         return this.isReady;
     },
+    getType: function()
+    {
+      return this.type;
+    },
     getSpd: function()
     {
       return this.spd;
+    },
+    getPlayer: function()
+    {
+      return this.mainCharacter;
+    },
+    getEnemy: function()
+    {
+      return this.enemy;
     },
     getActionType: function()
     {
@@ -1585,16 +1615,26 @@ var PAction = Class.create({
     {
         if(this.attackButton.contains(mX,mY) && !this.one)
         {
-            this.actionType = 0;
+            this.actionType = -1;
             this.isReady = true;
         }
         else if(this.spellButton.contains(mX,mY) && !this.one)
         {
-            this.actionType = 1;
-            console.log("click");
             this.one = true;
             this.spells = this.mainCharacter.getSpells();
             this.updateSpells();
+        }
+        if(this.spells != [])
+        {
+            for(var i = 0; i < this.spells.length; i++)
+            {
+                if(this.spells[i].contains(mX,mY))
+                {
+                    this.actionType = i;
+                    this.isReady = true;
+                    console.log("you pressed: " + this.spells[i].getName());
+                }
+            }
         }
         if(!this.spellButton.contains(mX,mY))
         {
@@ -1616,6 +1656,77 @@ var PAction = Class.create({
     }
 });
 
+var battleAction = Class.create({
+
+   initialize: function(stateMachine, action)
+   {
+       this.battleSystem = stateMachine;
+       this.action = action;
+       this.mainCharacter = this.action.getPlayer();
+       this.spells = [];
+       this.enemy = this.action.getEnemy();
+   },
+    onEnter: function()
+    {
+
+    },
+    onExit: function()
+    {
+
+    },
+    update: function()
+    {
+        if(this.action.getType() == "player")
+        {
+            this.spells = this.mainCharacter.getSpells();
+            if(this.action.getActionType() == -1)
+            {
+                this.enemy.takeDamage(this.mainCharacter.getTotalDamage());
+                this.battleSystem.revertState();
+            }
+            else
+            {
+                if(this.spells[this.action.getType()].getName() == "Heal")
+                {
+                    this.mainCharacter.heal(this.spells[this.action.getType()].getDamage());
+                    this.battleSystem.revertState();
+                }
+                else
+                {
+                    this.enemy.takeDamage(this.spells[this.action.getType()].getDamage());
+                    this.battleSystem.revertState();
+                }
+            }
+        }
+        else
+        {
+            this.spells = this.enemy.getSpells();
+            if(this.action.getActionType() == -1)
+            {
+                this.mainCharacter.takeDamage(this.enemy.getDamage());
+                this.battleSystem.revertState();
+            }
+            else
+            {
+                if(this.spells[this.action.getType()].getName() == "Heal")
+                {
+                    this.enemy.heal(this.spells[this.action.getType()].getDamage());
+                    this.battleSystem.revertState();
+                }
+                else
+                {
+                    this.mainCharacter.takeDamage(this.spells[this.action.getType()].getDamage());
+                    this.battleSystem.revertState();
+                }
+            }
+        }
+
+    },
+    draw: function()
+    {
+
+    }
+});
 
 function clamp(value, min, max)
 {
