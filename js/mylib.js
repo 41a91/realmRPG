@@ -753,7 +753,7 @@ var StateMachine = Class.create({
     {
         this.mStates.push(state);
     },
-    changeState: function(stateIndex)
+    changeState: function(stateIndex,enemy)
     {
         /*if(this.mStack.length > 0)
         {
@@ -762,7 +762,7 @@ var StateMachine = Class.create({
         }*/
         var newState = this.mStates[stateIndex];
         this.mStack.push(newState);
-        newState.onEnter();
+        newState.onEnter(enemy);
     },
     revertState: function()
     {
@@ -1258,7 +1258,7 @@ var statsState = Class.create({
         }
         if(this.saveButton.contains(mX,mY))
         {
-            this.stateMachine.changeState(4);
+            this.stateMachine.changeState(4,beholder);
         }
     },
     draw: function(g)
@@ -1435,11 +1435,11 @@ var mapSystem = Class.create({
 
 var battleState = Class.create({
 
-   initialize: function(canvas,stateMachine,mainCharacter,enemy)
+   initialize: function(canvas,stateMachine,mainCharacter)
    {
        this.actions = [];
        this.mainCharacter = mainCharacter;
-       this.enemy = enemy;
+       this.enemy = 0;
        this.canvas = canvas;
        this.stateMachine = stateMachine;
        this.battleSystem = new StateMachine();
@@ -1449,15 +1449,26 @@ var battleState = Class.create({
        this.actions = mergeSort(this.actions);
        this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
        this.battleSystem.changeState(0);
+       this.playerCurrentHP = 0;
+       this.playerMaxHP = 0;
+       this.enemyCurrentHP = 0;
+       this.enemyMaxHP = 0;
    },
-    onEnter: function()
+    onEnter: function(enemy)
     {
         var pAction = new PAction(this.mainCharacter,this.canvas);
         this.actions.push(pAction);
 
         this.actions = mergeSort(this.actions);
 
+        this.enemy = enemy;
+        this.enemy.setLoc(20,10);
         this.mBattleStance = new imageSprite(70,50,20,20,mainCharacterBattleStance,this.canvas);
+        this.playerCurrentHP = new imageSprite(65,45,(this.mainCharacter.getCurrentHealth()/this.mainCharacter.getMaxHealth())*30,3,redHealth,this.canvas);
+        this.playerMaxHP = new Sprite(65,45,30,3,this.canvas);
+        this.enemyCurrentHP = new imageSprite(15,5,((this.enemy.getCurrentHealth()/this.enemy.getMaxHealth())*30),3,redHealth,this.canvas);
+        this.enemyMaxHP = new Sprite(15,5,30,3,this.canvas);
+
         this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
         this.battleSystem.changeState(0);
     },
@@ -1468,10 +1479,16 @@ var battleState = Class.create({
     update: function(deltaTime,mX,mY)
     {
         this.battleSystem.update(deltaTime,mX,mY);
+        this.playerCurrentHP.setWidth((this.mainCharacter.getCurrentHealth()/this.mainCharacter.getMaxHealth())*30);
     },
     draw: function(g)
     {
+        this.playerCurrentHP.draw(g);
+        this.playerMaxHP.draw(g);
+        this.enemyCurrentHP.draw(g);
+        this.enemyMaxHP.draw(g);
         this.mBattleStance.draw(g);
+        this.enemy.draw(g);
         this.battleSystem.draw(g);
     }
 });
@@ -1556,8 +1573,8 @@ var PAction = Class.create({
 
             this.spells[i].setLoc(pixelPosX,pixelPosY);
 
-            tileColumn += 2;
-            if(tileColumn >= 5)
+            tileColumn += 1;
+            if(tileColumn >= 3)
             {
                 tileColumn = 0;
                 tileRow += 1;

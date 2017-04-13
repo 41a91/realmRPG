@@ -2,6 +2,9 @@ var gameCanvas;
 var graphics;
 var canvasRect;
 
+var beholder;
+var enemy1;
+
 var mainCharacter;
 var mainCharacterRightSheet;
 var mainCharacterLeftSheet;
@@ -10,12 +13,15 @@ var mainCharacterBackSheet;
 var mainCharacterFrontStatic;
 var mainCharacterBattleStance;
 
+var redHealth;
+
 var armorLight;
 var weaponDagger;
 var weaponUnequip;
 var armorUnequip;
 
 var fireSpell;
+var healSpell;
 
 var stateMachine;
 
@@ -44,6 +50,8 @@ window.onload = function()
     graphics = gameCanvas.getContext("2d");
     gameCanvas.mouseDown = false;
 
+    enemy1 = document.getElementById("enemy1");
+    beholder = new Enemy(0,0,20,20,gameCanvas,enemy1,1,0,[5,8,2,0],200,100);
 
     mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
@@ -52,17 +60,21 @@ window.onload = function()
     mainCharacterFrontStatic = document.getElementById("mainCharacterFrontStatic");
     mainCharacterBattleStance = document.getElementById("mainCharacterBattleStance");
 
+    redHealth = document.getElementById("redHealth");
+
     armorLight = document.getElementById("ArmorLight");
     weaponDagger = document.getElementById("WeaponDagger");
     weaponUnequip = document.getElementById("weaponUnequip");
     armorUnequip = document.getElementById("armorUnequip");
 
     fireSpell = document.getElementById("fireSpell");
+    healSpell = document.getElementById("healSpell");
 
     mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
     mainCharacter.play(-1);
 
     mainCharacter.addSpell(new Spell(0,0,5,5,fireSpell,gameCanvas,"Fire Ball",8,30));
+    mainCharacter.addSpell(new Spell(0,0,5,5,healSpell,gameCanvas,"Heal", 50,50));
 
 
 
