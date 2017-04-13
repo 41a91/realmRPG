@@ -496,6 +496,10 @@ var Enemy = Class.create(AnimatedSprite,{
     {
         return this.currentHealth;
     },
+    getDamage: function()
+    {
+      return this.stats[0];
+    },
     getCurrentMana: function()
     {
         return this.currentMana;
@@ -1448,16 +1452,12 @@ var battleState = Class.create({
    {
        this.actions = [];
        this.mainCharacter = mainCharacter;
-       this.enemy = 0;
        this.canvas = canvas;
        this.stateMachine = stateMachine;
        this.battleSystem = new StateMachine();
        this.mBattleStance = new imageSprite(0,0,8,8,mainCharacterBattleStance,canvas);
-       var pAction = new PAction(this.mainCharacter,this.enemy,this.canvas);
-       this.actions.push(pAction);
        this.actions = mergeSort(this.actions);
-       this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
-       this.battleSystem.changeState(0);
+       this.battleTicks = 0;
        this.playerCurrentHP = 0;
        this.playerMaxHP = 0;
        this.enemyCurrentHP = 0;
@@ -1465,8 +1465,6 @@ var battleState = Class.create({
    },
     onEnter: function(enemy)
     {
-
-
         this.enemy = enemy;
         this.enemy.setLoc(20,10);
         this.mBattleStance = new imageSprite(70,50,20,20,mainCharacterBattleStance,this.canvas);
@@ -1479,8 +1477,10 @@ var battleState = Class.create({
         this.actions.push(pAction);
         this.actions = mergeSort(this.actions);
 
-        this.battleSystem.addState(new battleTick(this.battleSystem,this.actions));
-        this.battleSystem.addState(new battleAction(this.battleSystem));
+        this.battleTicks = new battleTick(this.battleSystem,this.stateMachine,this.mainCharacter,this.enemy,this.canvas,this.actions);
+
+        this.battleSystem.addState(this.battleTicks);
+        this.battleSystem.addState(new battleAction(this.battleSystem,this.battleTicks,this.canvas));
         this.battleSystem.changeState(0);
     },
     onExit: function()
@@ -1502,19 +1502,19 @@ var battleState = Class.create({
         this.mBattleStance.draw(g);
         this.enemy.draw(g);
         this.battleSystem.draw(g);
-    },
-    addAction: function(action)
-    {
-        this.actions.push(action);
     }
 });
 
 var battleTick = Class.create({
 
-   initialize: function(stateMachine,actions)
+   initialize: function(battleState,stateMachine,mainCharacter,enemy,canvas,actions)
    {
-       this.battleSystem = stateMachine;
+       this.battleSystem = battleState;
        this.actions = actions;
+       this.mainCharacter = mainCharacter;
+       this.stateMachine = stateMachine;
+       this.enemy = enemy;
+       this.canvas = canvas;
 
    },
     onEnter: function()
@@ -1536,7 +1536,6 @@ var battleTick = Class.create({
             if(this.actions[this.actions.length-1].getReady())
             {
                 var action = this.actions.pop();
-                //this.battleSystem.addAction(new EAction());
                 this.battleSystem.changeState(1,action);
             }
         }
@@ -1549,6 +1548,10 @@ var battleTick = Class.create({
         {
             this.actions[i].draw(g);
         }
+    },
+    addAction: function(action)
+    {
+        this.actions.push(action);
     }
 });
 
@@ -1557,6 +1560,7 @@ var PAction = Class.create({
     initialize: function(mainCharacter,enemy,canvas)
     {
         this.mainCharacter = mainCharacter;
+        this.enemy = enemy;
         this.spd = this.mainCharacter.getTotalSpd();
         this.isReady = false;
         this.actionType = -1;
@@ -1613,12 +1617,12 @@ var PAction = Class.create({
     },
     update: function(deltaTime,mX,mY)
     {
-        if(this.attackButton.contains(mX,mY) && !this.one)
+        if(this.attackButton.contains(mX,mY) && !this.one && this.canvas.mouseDown)
         {
             this.actionType = -1;
             this.isReady = true;
         }
-        else if(this.spellButton.contains(mX,mY) && !this.one)
+        else if(this.spellButton.contains(mX,mY) && !this.one && this.canvas.mouseDown)
         {
             this.one = true;
             this.spells = this.mainCharacter.getSpells();
@@ -1656,23 +1660,75 @@ var PAction = Class.create({
     }
 });
 
-var battleAction = Class.create({
+var EAction = Class.create({
 
-   initialize: function(stateMachine, action)
-   {
-       this.battleSystem = stateMachine;
-       this.action = action;
-       this.mainCharacter = this.action.getPlayer();
-       this.spells = [];
-       this.enemy = this.action.getEnemy();
-   },
-    onEnter: function()
+    initialize: function(mainCharacter,enemy,canvas)
+    {
+        this.mainCharacter = mainCharacter;
+        this.enemy = enemy;
+        this.spd = this.mainCharacter.getTotalSpd();
+        this.isReady = false;
+        this.actionType = -1;
+        this.canvas = canvas;
+        this.spells = [];
+        this.one = false;
+        this.type = "enemy";
+    },
+    getReady: function()
+    {
+        return this.isReady;
+    },
+    getType: function()
+    {
+        return this.type;
+    },
+    getSpd: function()
+    {
+        return this.spd;
+    },
+    getPlayer: function()
+    {
+        return this.mainCharacter;
+    },
+    getEnemy: function()
+    {
+        return this.enemy;
+    },
+    getActionType: function()
+    {
+        return this.actionType;
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        this.actionType = -1;
+        this.isReady = true;
+    },
+    draw: function(g)
     {
 
+    }
+});
+
+var battleAction = Class.create({
+
+   initialize: function(stateMachine,battleState,canvas)
+   {
+       this.battleSystem = stateMachine;
+       this.battleState = battleState;
+       this.canvas = canvas;
+       this.action = 0;
+       this.spells = [];
+   },
+    onEnter: function(action)
+    {
+        this.action = action;
+        this.mainCharacter = this.action.getPlayer();
+        this.enemy = this.action.getEnemy();
     },
     onExit: function()
     {
-
+        this.action = 0;
+        this.spells = [];
     },
     update: function()
     {
@@ -1682,21 +1738,25 @@ var battleAction = Class.create({
             if(this.action.getActionType() == -1)
             {
                 this.enemy.takeDamage(this.mainCharacter.getTotalDamage());
+                this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                 this.battleSystem.revertState();
             }
             else
             {
-                if(this.spells[this.action.getType()].getName() == "Heal")
+                if(this.spells[this.action.getActionType()].getName() == "Heal")
                 {
-                    this.mainCharacter.heal(this.spells[this.action.getType()].getDamage());
+                    this.mainCharacter.heal(this.spells[this.action.getActionType()].getDamage());
+                    this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
                 else
                 {
-                    this.enemy.takeDamage(this.spells[this.action.getType()].getDamage());
+                    this.enemy.takeDamage(this.spells[this.action.getActionType()].getDamage());
+                    this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
             }
+
         }
         else
         {
@@ -1704,18 +1764,21 @@ var battleAction = Class.create({
             if(this.action.getActionType() == -1)
             {
                 this.mainCharacter.takeDamage(this.enemy.getDamage());
+                this.battleState.addAction(new PAction(this.mainCharacter,this.enemy,this.canvas));
                 this.battleSystem.revertState();
             }
             else
             {
-                if(this.spells[this.action.getType()].getName() == "Heal")
+                if(this.spells[this.action.getActionType()].getName() == "Heal")
                 {
-                    this.enemy.heal(this.spells[this.action.getType()].getDamage());
+                    this.enemy.heal(this.spells[this.action.getActionType()].getDamage());
+                    this.battleState.addAction(new PAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
                 else
                 {
-                    this.mainCharacter.takeDamage(this.spells[this.action.getType()].getDamage());
+                    this.mainCharacter.takeDamage(this.spells[this.action.getActionType()].getDamage());
+                    this.battleState.addAction(new PAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
             }
