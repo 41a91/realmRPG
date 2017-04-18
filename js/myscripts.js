@@ -14,6 +14,7 @@ var mainCharacterFrontStatic;
 var mainCharacterBattleStance;
 
 var redHealth;
+var blueMana;
 
 var armorLight;
 var weaponDagger;
@@ -61,6 +62,7 @@ window.onload = function()
     mainCharacterBattleStance = document.getElementById("mainCharacterBattleStance");
 
     redHealth = document.getElementById("redHealth");
+    blueMana = document.getElementById("blueMana");
 
     armorLight = document.getElementById("ArmorLight");
     weaponDagger = document.getElementById("WeaponDagger");

@@ -372,6 +372,7 @@ var Player = Class.create(AnimatedSprite,{
       this.currentHealth -= dmg;
       if(this.currentHealth <= 0)
       {
+          this.currentHealth = 0;
           this.alive = false;
       }
     },
@@ -710,38 +711,47 @@ var DialogueBox = Class.create(Sprite,{
        this.message = message;
        this.mLength = message.length;
        this.w = w;
+       this.isVisible = true;
        this.percentLength = Math.round(message.length/100*this.container.width);
    },
     setMessage: function(m)
     {
         this.message = m;
     },
+    setVisible: function(bool)
+    {
+      this.isVisible = bool;
+    },
     draw: function(ctx)
     {
-        ctx.save();
-
-        var nMessage = [];
-
-        ctx.strokeRect(this.getX(),this.getY(),this.getWidth(),this.getHeight());
-
-        ctx.font = this.getHeight()/4+"px Arial";
-        ctx.textAlign = "center";
-        if(this.mLength > this.w)
+        if(this.isVisible)
         {
-            nMessage = [this.message.substr(0,this.mLength/2),this.message.substr(this.mLength/2,this.mLength/2)];
+            ctx.save();
 
+            var nMessage = [];
+
+            ctx.strokeRect(this.getX(),this.getY(),this.getWidth(),this.getHeight());
+
+            ctx.font = this.getHeight()/4+"px Arial";
+            ctx.textAlign = "center";
+            if(this.mLength > this.w)
+            {
+                nMessage = [this.message.substr(0,this.mLength/2),this.message.substr(this.mLength/2,this.mLength/2)];
+
+            }
+            if(nMessage.length > 0)
+            {
+                ctx.fillText(nMessage[0],this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
+                ctx.fillText(nMessage[1],this.getX()+this.getWidth()/2,(this.getY()+this.getHeight()/2) + this.getHeight()/4,this.getWidth());
+            }
+            else
+            {
+                ctx.fillText(this.message,this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
+            }
+            ctx.restore();
         }
-        if(nMessage.length > 0)
-        {
-            ctx.fillText(nMessage[0],this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
-            ctx.fillText(nMessage[1],this.getX()+this.getWidth()/2,(this.getY()+this.getHeight()/2) + this.getHeight()/4,this.getWidth());
         }
-        else
-        {
-            ctx.fillText(this.message,this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getWidth());
-        }
-        ctx.restore();
-    }
+
 });
 
 var StateMachine = Class.create({
@@ -1460,18 +1470,26 @@ var battleState = Class.create({
        this.battleTicks = 0;
        this.playerCurrentHP = 0;
        this.playerMaxHP = 0;
+       this.playerCurrentMP = 0;
+       this.playerMaxMP = 0;
        this.enemyCurrentHP = 0;
        this.enemyMaxHP = 0;
+       this.enemyCurrentMP = 0;
+       this.enemyMaxMP = 0;
    },
     onEnter: function(enemy)
     {
         this.enemy = enemy;
         this.enemy.setLoc(20,10);
         this.mBattleStance = new imageSprite(70,50,20,20,mainCharacterBattleStance,this.canvas);
-        this.playerCurrentHP = new imageSprite(65,45,(this.mainCharacter.getCurrentHealth()/this.mainCharacter.getMaxHealth())*30,3,redHealth,this.canvas);
-        this.playerMaxHP = new Sprite(65,45,30,3,this.canvas);
-        this.enemyCurrentHP = new imageSprite(15,5,((this.enemy.getCurrentHealth()/this.enemy.getMaxHealth())*30),3,redHealth,this.canvas);
-        this.enemyMaxHP = new Sprite(15,5,30,3,this.canvas);
+        this.playerCurrentHP = new imageSprite(65,40,(this.mainCharacter.getCurrentHealth()/this.mainCharacter.getMaxHealth())*30,3,redHealth,this.canvas);
+        this.playerMaxHP = new Sprite(65,40,30,3,this.canvas);
+        this.playerCurrentMP = new imageSprite(65,45,(this.mainCharacter.getCurrentMana()/this.mainCharacter.getMaxMana())*15,3,blueMana,this.canvas);
+        this.playerMaxMP = new Sprite(65,45,15,3,this.canvas);
+        this.enemyCurrentHP = new imageSprite(15,1,((this.enemy.getCurrentHealth()/this.enemy.getMaxHealth())*30),3,redHealth,this.canvas);
+        this.enemyMaxHP = new Sprite(15,1,30,3,this.canvas);
+        this.enemyCurrentMP = new imageSprite(15,5,(this.enemy.getCurrentMana()/this.enemy.getMaxMana())*15,3,blueMana,this.canvas);
+        this.enemyMaxMP = new Sprite(15,5,15,3,this.canvas);
 
         var pAction = new PAction(this.mainCharacter,this.enemy,this.canvas);
         this.actions.push(pAction);
@@ -1492,13 +1510,19 @@ var battleState = Class.create({
         this.battleSystem.update(deltaTime,mX,mY);
         this.playerCurrentHP.setWidth((this.mainCharacter.getCurrentHealth()/this.mainCharacter.getMaxHealth())*30);
         this.enemyCurrentHP.setWidth((this.enemy.getCurrentHealth()/this.enemy.getMaxHealth())*30);
+        this.playerCurrentMP.setWidth((this.mainCharacter.getCurrentMana()/this.mainCharacter.getMaxMana())*15);
+        this.enemyCurrentMP.setWidth((this.enemy.getCurrentMana()/this.enemy.getMaxMana())*15);
     },
     draw: function(g)
     {
         this.playerCurrentHP.draw(g);
         this.playerMaxHP.draw(g);
+        this.playerCurrentMP.draw(g);
+        this.playerMaxMP.draw(g);
         this.enemyCurrentHP.draw(g);
         this.enemyMaxHP.draw(g);
+        this.enemyCurrentMP.draw(g);
+        this.enemyMaxMP.draw(g);
         this.mBattleStance.draw(g);
         this.enemy.draw(g);
         this.battleSystem.draw(g);
@@ -1567,6 +1591,8 @@ var PAction = Class.create({
         this.canvas = canvas;
         this.attackButton = new DialogueBox(70,70,15,6,this.canvas,"Attack");
         this.spellButton = new DialogueBox(85,70,15,6,this.canvas,"Spells");
+        this.label = new DialogueBox(70,80,25,6,this.canvas,"Insufficient Mana");
+        this.label.setVisible(false);
         this.spells = [];
         this.one = false;
         this.type = "player";
@@ -1620,6 +1646,7 @@ var PAction = Class.create({
         if(this.attackButton.contains(mX,mY) && !this.one && this.canvas.mouseDown)
         {
             this.actionType = -1;
+            this.label.setVisible(false);
             this.isReady = true;
         }
         else if(this.spellButton.contains(mX,mY) && !this.one && this.canvas.mouseDown)
@@ -1634,8 +1661,17 @@ var PAction = Class.create({
             {
                 if(this.spells[i].contains(mX,mY))
                 {
-                    this.actionType = i;
-                    this.isReady = true;
+                    if(this.spells[i].getManaCost() <= this.mainCharacter.getCurrentMana())
+                    {
+                        this.actionType = i;
+                        this.mainCharacter.useMana(this.spells[i].getManaCost());
+                        this.label.setVisible(false);
+                        this.isReady = true;
+                    }
+                    else
+                    {
+                        this.label.setVisible(true);
+                    }
                     console.log("you pressed: " + this.spells[i].getName());
                 }
             }
@@ -1650,6 +1686,7 @@ var PAction = Class.create({
     {
         this.attackButton.draw(g);
         this.spellButton.draw(g);
+        this.label.draw(g);
         if(this.spells != [])
         {
             for(var i = 0; i < this.spells.length; i++)
@@ -1788,6 +1825,49 @@ var battleAction = Class.create({
     draw: function()
     {
 
+    }
+});
+
+var Node = Class.create({
+
+    initialize: function(right,left,parent,isRoot)
+    {
+        this.right = right;
+        this.left = left;
+        this.parent = parent;
+        this.isRoot = isRoot;
+    },
+    getRight: function()
+    {
+        return this.right;
+    },
+    getLeft: function()
+    {
+        return this.left;
+    },
+    getParent: function()
+    {
+        return this.parent;
+    },
+    isRoot: function()
+    {
+        return this.isRoot;
+    },
+    setRight: function(right)
+    {
+        this.right = right;
+    },
+    setLeft: function(left)
+    {
+        this.left = left;
+    },
+    setRoot: function(root)
+    {
+        this.isRoot = root;
+    },
+    setParent: function(parent)
+    {
+        this.parent = parent;
     }
 });
 
