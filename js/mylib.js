@@ -369,7 +369,18 @@ var Player = Class.create(AnimatedSprite,{
     },
     takeDamage: function(dmg)
     {
-      this.currentHealth -= dmg;
+        var realDmg = dmg;
+        realDmg -= this.getStats()[1];
+        if(this.getCurrentArmor() != null)
+        {
+            realDmg -= this.getCurrentArmor().getDefence();
+        }
+        if(realDmg <= 0)
+        {
+            realDmg = 1;
+        }
+
+      this.currentHealth -= realDmg;
       if(this.currentHealth <= 0)
       {
           this.currentHealth = 0;
