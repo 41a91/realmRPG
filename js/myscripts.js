@@ -52,7 +52,7 @@ window.onload = function()
     gameCanvas.mouseDown = false;
 
     enemy1 = document.getElementById("enemy1");
-    beholder = new Enemy(0,0,20,20,gameCanvas,enemy1,1,0,[5,8,2,0],200,100);
+    beholder = new Enemy(0,0,20,20,gameCanvas,enemy1,1,0,[200,8,2,0],200,100);
 
     mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
@@ -86,6 +86,7 @@ window.onload = function()
     stateMachine.addState(new inventoryState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new statsState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new battleState(gameCanvas,stateMachine,mainCharacter));
+    stateMachine.addState(new DeadState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.changeState(0);
 
     testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);

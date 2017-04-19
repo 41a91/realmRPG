@@ -271,6 +271,10 @@ var Player = Class.create(AnimatedSprite,{
        this.currentWeapon = null;
        this.currentArmor = null;
    },
+    setAlive: function(bool)
+    {
+      this.alive = true;
+    },
     canMove: function()
     {
         return this.canMove;
@@ -538,7 +542,13 @@ var Enemy = Class.create(AnimatedSprite,{
     },
     takeDamage: function(dx)
     {
-        this.currentHealth -= dx;
+        var realDmg = dx;
+        realDmg -= this.getStats()[1];
+        if(realDmg <= 0)
+        {
+            realDmg = 1;
+        }
+        this.currentHealth -= realDmg;
         if(this.currentHealth <= 0)
         {
             this.currentHealth = 0;
@@ -805,11 +815,12 @@ var StateMachine = Class.create({
     },
     returnToMenu: function()
     {
-        for(var i = 0; i < this.mStack.length; i++)
-        {
-            var oldState = this.mStack.pop();
-            oldState.onExit();
-        }
+        var length = this.mStack.length;
+            for(var i = 1; i < length; i++)
+            {
+                console.log("i: " + i);
+                this.revertState();
+            }
     }
 });
 
@@ -829,6 +840,7 @@ var MainMenuState = Class.create({
     {
         var temp = new DialogueBox(35,40,30,8,this.canvas,"New Game");
         var temp1 = new DialogueBox(35,50,30,8,this.canvas,"Load Game");
+        this.mainCharacter.setAlive(true);
         this.buttons.push(temp,temp1);
     },
     onExit: function()
@@ -1509,7 +1521,7 @@ var battleState = Class.create({
         this.battleTicks = new battleTick(this.battleSystem,this.stateMachine,this.mainCharacter,this.enemy,this.canvas,this.actions);
 
         this.battleSystem.addState(this.battleTicks);
-        this.battleSystem.addState(new battleAction(this.battleSystem,this.battleTicks,this.canvas));
+        this.battleSystem.addState(new battleAction(this.battleSystem,this.battleTicks,this.stateMachine,this.canvas));
         this.battleSystem.changeState(0);
     },
     onExit: function()
@@ -1573,6 +1585,10 @@ var battleTick = Class.create({
                 var action = this.actions.pop();
                 this.battleSystem.changeState(1,action);
             }
+        }
+        if(!this.mainCharacter.isAlive())
+        {
+            this.stateMachine.changeState(5);
         }
 
     },
@@ -1759,10 +1775,11 @@ var EAction = Class.create({
 
 var battleAction = Class.create({
 
-   initialize: function(stateMachine,battleState,canvas)
+   initialize: function(stateMachine,battleState,mainStateMachine,canvas)
    {
        this.battleSystem = stateMachine;
        this.battleState = battleState;
+       this.mainStateMachine = mainStateMachine;
        this.canvas = canvas;
        this.action = 0;
        this.spells = [];
@@ -1812,6 +1829,10 @@ var battleAction = Class.create({
             if(this.action.getActionType() == -1)
             {
                 this.mainCharacter.takeDamage(this.enemy.getDamage());
+                if(!this.mainCharacter.isAlive())
+                {
+                    this.mainStateMachine.changeState(5);
+                }
                 this.battleState.addAction(new PAction(this.mainCharacter,this.enemy,this.canvas));
                 this.battleSystem.revertState();
             }
@@ -1826,16 +1847,50 @@ var battleAction = Class.create({
                 else
                 {
                     this.mainCharacter.takeDamage(this.spells[this.action.getActionType()].getDamage());
+                    if(!this.mainCharacter.isAlive())
+                    {
+                        this.mainStateMachine.changeState(5);
+                    }
                     this.battleState.addAction(new PAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
             }
         }
-
     },
     draw: function()
     {
 
+    }
+});
+
+var DeadState = Class.create({
+
+    initialize: function(canvas, stateMachine, mainCharacter)
+    {
+        this.canvas = canvas;
+        this.stateMachine = stateMachine;
+        this.mainCharacter = mainCharacter;
+        this.gameOver = new DialogueBox(0,0,50,40,this.canvas,"You Have Perished!");
+    },
+    onEnter: function()
+    {
+        this.gameOver = new DialogueBox(20,20,50,40,this.canvas,"You Have Perished!");
+    },
+    onExit: function()
+    {
+
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        var timer = setTimeout(function(){
+            stateMachine.returnToMenu();
+            console.log("Hahahahaha");
+            clearTimeout(timer);
+        },2000);
+    },
+    draw: function(g)
+    {
+        this.gameOver.draw(g);
     }
 });
 
