@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<form id="newSave" action="../realmRPG/php/control/loadGameController.php" method="post">
+<form id="newSave" action="../realmRPG/php/control/saveGameController.php" method="post">
     <label>Username: <input type="text" id="username" name="username" required="required"/></label><br/>
     <label>Password: <input type="password" id="password" name="password" required="required"/></label>
     <input type="submit" id="submit" name="submit" value="Submit"/>

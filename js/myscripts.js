@@ -78,6 +78,10 @@ window.onload = function()
     mainCharacter.addSpell(new Spell(0,0,5,5,fireSpell,gameCanvas,"Fire Ball",8,30));
     mainCharacter.addSpell(new Spell(0,0,5,5,healSpell,gameCanvas,"Heal", 50,50));
 
+    console.log(mainCharacter.getJSONCharacter());
+
+    var main2 = JSON.parse(mainCharacter.getJSONCharacter());
+    console.log(main2);
 
 
     stateMachine = new StateMachine();

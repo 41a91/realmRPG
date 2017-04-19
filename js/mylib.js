@@ -490,6 +490,20 @@ var Player = Class.create(AnimatedSprite,{
             this.levelUp();
             this.nextLevelXP += (500*this.level);
         }
+    },
+    getJSONCharacter: function()
+    {
+     var x = this.actualX;
+     var y = this.actualY;
+     var width = this.actualWidth;
+     var height = this.actualHeight;
+     var container = this.container;
+     var stats = this.stats;
+     var health = this.maxHealth;
+     var mana = this.maxMana;
+     var username = this.username;
+
+        return JSON.stringify(new Player(x,y,width,height,container,mainCharacterFrontSheet,3,3,stats,health,mana,username));
     }
 });
 
@@ -870,7 +884,7 @@ var MainMenuState = Class.create({
                 section.style.display = "block";
                 this.inPHP = true;
                 $.ajax({
-                    url: "php/view/createNewSave.php",
+                    url: "php/view/saveGameView.php",
                     cache: false
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);

@@ -1,24 +1,34 @@
 <?php
 session_start();
 
+require_once("../dbconnector.php");
+require_once("../model/Model.php");
+require_once("../model/load_save.php");
+
+use load_save_games\load_save;
+use load_save_games\Model;
 
 
-$username = "";
-$password = "";
-$json = "error";
+
+$post = $_POST;
 
 
-if(isset($_POST["username"]) && isset($_POST["password"]))
+if(isset($post["username"]) && isset($post["password"]))
 {
-    $json = [];
-    $json["name"] = "Bob";
-    $json["id"] = 55;
-    $json["age"] = 35;
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    $json["username"] = $username;
-    $json["password"] = $password;
+   $check = load_save::checkIfUserExists($db,$post["username"]);
+   if($check)
+   {
+       $userObj = load_save::loginRequest($db,$post["username"],$post["password"]);
 
-    $json1 = json_encode($json);
-    echo $json1;
+       $_SESSION["loggedIn"] = true;
+       $_SESSION["username"] = $userObj[0];
+       $_SESSION["character"] = $userObj[1];
+       $_SESSION["inventory"] = $userObj[2];
+       $_SESSION["mapDetail"] = $userObj[3];
+       header("Location: ../../../index.html");
+   }
+   else
+   {
+       echo "You failed somewhere on the loadGame controller";
+   }
 }
