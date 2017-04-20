@@ -21,11 +21,10 @@ if(isset($post["username"]) && isset($post["password"]))
        $userObj = load_save::loginRequest($db,$post["username"],$post["password"]);
 
        $_SESSION["loggedIn"] = true;
-       $_SESSION["username"] = $userObj[0];
-       $_SESSION["character"] = $userObj[1];
-       $_SESSION["inventory"] = $userObj[2];
-       $_SESSION["mapDetail"] = $userObj[3];
-       header("Location: ../../../index.html");
+       $_SESSION["username"] = $userObj[1];
+       $_SESSION["character"] = $userObj[3];
+       $_SESSION["mapDetail"] = $userObj[4];
+       header("Location: ../../index.html");
    }
    else
    {

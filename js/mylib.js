@@ -876,7 +876,17 @@ var MainMenuState = Class.create({
         {
             if(this.buttons[0].contains(mX,mY) && this.canvas.mouseDown)
             {
-                this.stateMachine.changeState(1);
+                var section = document.getElementById("phpIncludeSection");
+                section.style.display = "block";
+                this.inPHP = true;
+                $.ajax({
+                    url: "php/view/registerGameView.php",
+                    cache: false
+                }).done(function(html){
+                    $("#phpIncludeSection").append(html);
+                });
+
+                //this.stateMachine.changeState(1);
             }
             else if(this.buttons[1].contains(mX,mY) && this.canvas.mouseDown)
             {
@@ -884,12 +894,12 @@ var MainMenuState = Class.create({
                 section.style.display = "block";
                 this.inPHP = true;
                 $.ajax({
-                    url: "php/view/saveGameView.php",
+                    url: "php/view/loadGameView.php",
                     cache: false
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);
                 });
-                var xhttp = new XMLHttpRequest();
+               /* var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function()
                 {
                     if(this.readyState == 4 && this.status == 200)
@@ -898,7 +908,7 @@ var MainMenuState = Class.create({
                     }
                 };
                 xhttp.open("GET","php/control/loadGameController.php",true);
-                xhttp.send();
+                xhttp.send();*/
 
             }
         }
