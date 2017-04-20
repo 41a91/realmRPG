@@ -1,0 +1,1 @@
+tile order: dungeonTileBlack, voidTile, dungeonWallTile, dungeionWall2Type1, dungeionWall2Type2, dungeionTile2Black,  dungeonGate1, dungeonGate2, stairsRight, enemy1
