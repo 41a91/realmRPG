@@ -513,7 +513,7 @@ var Player = Class.create(AnimatedSprite,{
 
 var Enemy = Class.create(AnimatedSprite,{
 
-    initialize: function($super,x,y,w,h,container,img,frameCount,fps,stats,health,mana)
+    initialize: function($super,x,y,w,h,container,img,frameCount,fps,stats,health,mana,items,xp)
     {
         $super(x,y,w,h,container,img,frameCount,fps);
 
@@ -525,6 +525,8 @@ var Enemy = Class.create(AnimatedSprite,{
         this.maxMana = mana;
         this.currentMana = mana;
         this.spells = [];
+        this.items = items;
+        this.xp = xp;
     },
     getCurrentHealth: function()
     {
@@ -538,6 +540,10 @@ var Enemy = Class.create(AnimatedSprite,{
     {
         return this.currentMana;
     },
+    getItems: function()
+    {
+      return this.items;
+    },
     getMaxHealth: function()
     {
         return this.maxHealth;
@@ -545,6 +551,14 @@ var Enemy = Class.create(AnimatedSprite,{
     getMaxMana: function()
     {
         return this.maxMana;
+    },
+    getXP: function()
+    {
+      return this.xp;
+    },
+    setAlive: function(bool)
+    {
+      this.alive = bool;
     },
     getStats: function()
     {
@@ -1041,8 +1055,8 @@ var localGameState = Class.create({
                 }
                 if(this.collideLayer[i].getID() == 10)
                 {
-                    var r = [randomNumber(0,5),randomNumber(0,5),randomNumber(0,5),randomNumber(50,100),randomNumber(50,100)];
-                    var beholder = new Enemy(0,0,20,20,this.canvas,enemy1,3,3,[r[0],r[1],r[2]],r[3],r[4]);
+                    var r = [randomNumber(0,5),randomNumber(0,5),randomNumber(0,5),randomNumber(50,100),randomNumber(50,100),randomNumber(1,45),randomNumber(1,15),randomNumber(300,500)];
+                    var beholder = new Enemy(0,0,20,20,this.canvas,enemy1,3,3,[r[0],r[1],r[2]],r[3],r[4],new Weapon(0,0,5,5,weaponDagger,this.canvas,r[5],r[6],r[5]+r[6],r[7]));
                     this.collideLayer[i].setVisible(false);
                     this.collideLayer[i].setID(-1);
                     this.stateMachine.changeState(4,beholder);
@@ -1564,6 +1578,7 @@ var battleState = Class.create({
 
         this.battleSystem.addState(this.battleTicks);
         this.battleSystem.addState(new battleAction(this.battleSystem,this.battleTicks,this.stateMachine,this.canvas));
+        this.battleSystem.addState(new winState(this.canvas,this.stateMachine,this.mainCharacter,this.enemy));
         this.battleSystem.changeState(0);
     },
     onExit: function()
@@ -1631,6 +1646,10 @@ var battleTick = Class.create({
         if(!this.mainCharacter.isAlive())
         {
             this.stateMachine.changeState(5);
+        }
+        if(!this.enemy.isAlive())
+        {
+            this.battleSystem.changeState(2);
         }
 
     },
@@ -1845,6 +1864,10 @@ var battleAction = Class.create({
             if(this.action.getActionType() == -1)
             {
                 this.enemy.takeDamage(this.mainCharacter.getTotalDamage());
+                if(!this.enemy.isAlive())
+                {
+                    this.stateMachine.changeState(2);
+                }
                 this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                 this.battleSystem.revertState();
             }
@@ -1859,6 +1882,10 @@ var battleAction = Class.create({
                 else
                 {
                     this.enemy.takeDamage(this.spells[this.action.getActionType()].getDamage());
+                    if(!this.enemy.isAlive())
+                    {
+                        this.stateMachine.changeState(2);
+                    }
                     this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
@@ -1933,6 +1960,43 @@ var DeadState = Class.create({
     draw: function(g)
     {
         this.gameOver.draw(g);
+    }
+});
+
+var winState = Class.create({
+
+   initialize: function(canvas,stateMachine,mainCharacter,enemy)
+   {
+       this.canvas = canvas;
+       this.stateMachine = stateMachine;
+       this.mainCharacter = mainCharacter;
+       this.enemy = enemy;
+       this.rewards = new DialogueBox(0,0,50,40,this.canvas,"You have gained, xp:" + this.enemy.getXP() + " Items: " + this.enemy.getItems().getType());
+       this.continue = new DialogueBox(0,0,50,40,this.canvas,"Continue");
+   },
+    onEnter: function()
+    {
+        this.rewards = new DialogueBox(20,20,50,40,this.canvas,"You have gained, xp:" + this.enemy.getXP() + " Items: " + this.enemy.getItems().getType());
+        this.continue = new DialogueBox(22,25,20,20,this.canvas,"Continue");
+    },
+    onExit: function()
+    {
+        mX = -1;
+        mY = -1;
+    },
+    update: function(deltaTime,mX,mY)
+    {
+        if(this.continue.contains(mX,mY))
+        {
+            this.mainCharacter.addItem(this.enemy.getItems());
+            this.mainCharacter.gainXP(this.enemy.getXP());
+            this.stateMachine.revertState();
+        }
+    },
+    draw: function(g)
+    {
+        this.rewards.draw(g);
+        this.continue.draw(g);
     }
 });
 
