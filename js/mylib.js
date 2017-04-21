@@ -941,8 +941,7 @@ var DialogueState = Class.create({
     },
     update: function(deltaTime,mX,mY)
     {
-
-
+        
     }
 });
 var localGameState = Class.create({
@@ -1042,7 +1041,7 @@ var localGameState = Class.create({
                 if(this.collideLayer[i].getID() == 10)
                 {
                     var r = [randomNumber(0,5),randomNumber(0,5),randomNumber(0,5),randomNumber(50,100),randomNumber(50,100),randomNumber(1,45),randomNumber(1,15),randomNumber(300,500)];
-                    var beholder = new Enemy(0,0,20,20,this.canvas,enemy1,3,3,[r[0],r[1],r[2]],r[3],r[4],new Weapon(0,0,5,5,weaponDagger,this.canvas,r[5],r[6],r[5]+r[6],r[7]));
+                    var beholder = new Enemy(0,0,20,20,this.canvas,enemy1,3,3,[r[0],r[1],r[2]],r[3],r[4],new Weapon(0,0,5,5,weaponDagger,this.canvas,r[5],r[6],r[5]+r[6],r[7]),r[7]);
                     this.collideLayer[i].setVisible(false);
                     this.collideLayer[i].setID(-1);
                     this.stateMachine.changeState(4,beholder);
@@ -1544,6 +1543,7 @@ var battleState = Class.create({
    },
     onEnter: function(enemy)
     {
+        this.battleSystem = new StateMachine();
         this.enemy = enemy;
         this.enemy.setLoc(20,10);
         this.mBattleStance = new imageSprite(70,50,20,20,mainCharacterBattleStance,this.canvas);
@@ -1564,7 +1564,7 @@ var battleState = Class.create({
 
         this.battleSystem.addState(this.battleTicks);
         this.battleSystem.addState(new battleAction(this.battleSystem,this.battleTicks,this.stateMachine,this.canvas));
-        this.battleSystem.addState(new winState(this.canvas,this.battleSystem,this.mainCharacter,this.enemy));
+        this.battleSystem.addState(new winState(this.canvas,this.stateMachine,this.mainCharacter,this.enemy));
         this.battleSystem.changeState(0);
     },
     onExit: function()
@@ -1851,11 +1851,6 @@ var battleAction = Class.create({
             if(this.action.getActionType() == -1)
             {
                 this.enemy.takeDamage(this.mainCharacter.getTotalDamage());
-                if(!this.enemy.isAlive())
-                {
-                    console.log("enemy died by sword");
-                    this.battleSystem.changeState(2);
-                }
                 this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                 this.battleSystem.revertState();
             }
@@ -1870,11 +1865,6 @@ var battleAction = Class.create({
                 else
                 {
                     this.enemy.takeDamage(this.spells[this.action.getActionType()].getDamage());
-                    if(!this.enemy.isAlive())
-                    {
-                        console.log("enemy died by magic");
-                        this.battleSystem.changeState(2);
-                    }
                     this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
@@ -1958,7 +1948,6 @@ var winState = Class.create({
    {
        this.canvas = canvas;
        this.stateMachine = stateMachine;
-       console.log(this.stateMachine);
        this.mainCharacter = mainCharacter;
        this.enemy = enemy;
        this.rewards = new DialogueBox(0,0,50,40,this.canvas,"You have gained, xp:" + this.enemy.getXP() + " Items: " + this.enemy.getItems().getType());
@@ -1966,8 +1955,8 @@ var winState = Class.create({
    },
     onEnter: function()
     {
-        this.rewards = new DialogueBox(20,20,50,40,this.canvas,"You have gained, xp:" + this.enemy.getXP() + " Items: " + this.enemy.getItems().getType());
-        this.continue = new DialogueBox(22,25,20,20,this.canvas,"Continue");
+        this.rewards = new DialogueBox(10,33,50,40,this.canvas,"You have gained, xp:" + this.enemy.getXP() + " Items: " + this.enemy.getItems().getType());
+        this.continue = new DialogueBox(12,55,20,10,this.canvas,"Continue");
     },
     onExit: function()
     {
