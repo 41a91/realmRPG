@@ -2,7 +2,7 @@ var gameCanvas;
 var graphics;
 var canvasRect;
 
-var beholder;
+var enemy2;
 var enemy1;
 
 var mainCharacter;
@@ -52,7 +52,7 @@ window.onload = function()
     gameCanvas.mouseDown = false;
 
     enemy1 = document.getElementById("enemy1");
-    beholder = new Enemy(0,0,20,20,gameCanvas,enemy1,1,0,[200,8,2,0],200,100);
+    enemy2 = document.getElementById("enemy2");
 
     mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
