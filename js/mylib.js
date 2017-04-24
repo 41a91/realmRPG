@@ -923,21 +923,37 @@ var MainMenuState = Class.create({
 });
 var DialogueState = Class.create({
 
-    initialize: function(x,y,w,h,container,message)
+    initialize: function(x,y,w,h,container,mainCharacter,message)
     {
-
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.container = container;
+        this.message = message;
+        this.iterater = 0;
+        this.map = [];
+        this.mainCharacter = mainCharacter;
+        this.currentMessage = new DialogueBox(0,0,0,0,this.container,this.message[this.iterater]);
     },
-    onEnter: function()
+    onEnter: function(map)
     {
-
+    this.map = map;
+    this.currentMessage = new DialogueBox(0,30,30,20,this.container,this.message[this.iterater]);
     },
     onExit: function()
     {
-
+        this.map = [];
+        this.iterater = 0;
     },
     draw: function(g)
     {
-
+        for(var i = 0; i < this.map.length; i++)
+        {
+            this.map[i].draw(g);
+        }
+        this.mainCharacter.draw(g);
+        this.currentMessage.draw(g);
     },
     update: function(deltaTime,mX,mY)
     {
