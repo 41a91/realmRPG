@@ -36,13 +36,17 @@ var testArmor;
 var testSword;
 var testSword1;
 
-
+var sessionStarted;
 
 
 
 
 window.onload = function()
 {
+
+    sessionStarted = '<?php=Session["loggedIn"]?>';
+    console.log(character);
+
     mX = 10;
     mY = 10;
 
@@ -72,17 +76,30 @@ window.onload = function()
     fireSpell = document.getElementById("fireSpell");
     healSpell = document.getElementById("healSpell");
 
-    mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
-    mainCharacter.play(-1);
 
-    mainCharacter.addSpell(new Spell(0,0,5,5,fireSpell,gameCanvas,"Fire Ball",8,30));
-    mainCharacter.addSpell(new Spell(0,0,5,5,healSpell,gameCanvas,"Heal", 50,50));
+
+
 
     /*console.log(mainCharacter.getJSONCharacter());
 
     var main2 = JSON.parse(mainCharacter.getJSONCharacter());
     console.log(main2);*/
+    if(character != "")
+    {
+        mainCharacter = JSON.parse(character);
+    }
+    else
+    {
+        mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
+        mainCharacter.play(-1);
 
+        mainCharacter.addSpell(new Spell(0,0,5,5,fireSpell,gameCanvas,"Fire Ball",8,30));
+        mainCharacter.addSpell(new Spell(0,0,5,5,healSpell,gameCanvas,"Heal", 50,50));
+        mainCharacter.addItem(testArmor);
+        mainCharacter.addItem(testSword);
+        mainCharacter.addItem(testSword1);
+
+    }
 
     stateMachine = new StateMachine();
     stateMachine.addState(new MainMenuState(gameCanvas,stateMachine,mainCharacter));
@@ -91,14 +108,19 @@ window.onload = function()
     stateMachine.addState(new statsState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new battleState(gameCanvas,stateMachine,mainCharacter));
     stateMachine.addState(new DeadState(gameCanvas,stateMachine,mainCharacter));
+    stateMachine.addState(new DialogueState(gameCanvas,stateMachine,mainCharacter,["This is a test","Hopfully it works","If not i will fix it"]));
     stateMachine.changeState(0);
 
     testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);
     testSword = new Weapon(0,0,8,8,weaponDagger,gameCanvas,"Dagger",6,2,10);
     testSword1 = new Weapon(0,0,8,8,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
-    mainCharacter.addItem(testArmor);
-    mainCharacter.addItem(testSword);
-    mainCharacter.addItem(testSword1);
+
+
+    if(loggedIn)
+    {
+        stateMachine.changeState(1,JSON.parse(mapDetail)[6]);
+        //working on doing the map stuff for load
+    }
 
     gameCanvas.addEventListener("mousedown",function()
     {

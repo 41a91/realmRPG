@@ -1,3 +1,9 @@
+<?php
+   session_start();
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +14,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
     <script src="js/mylib.js" type="text/javascript"></script>
     <script src="js/myscripts.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var loggedIn = "<?php echo $_SESSION["loggedIn"] ?>";
+        var username = "<?php echo $_SESSION["username"] ?>";
+        var character = "<?php echo $_SESSION["character"] ?>";
+        var mapDetail = "<?php echo $_SESSION["mapDetail"] ?>";
+    </script>
 </head>
 <body>
 

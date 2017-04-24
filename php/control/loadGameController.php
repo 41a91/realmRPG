@@ -24,7 +24,7 @@ if(isset($post["username"]) && isset($post["password"]))
        $_SESSION["username"] = $userObj[1];
        $_SESSION["character"] = $userObj[3];
        $_SESSION["mapDetail"] = $userObj[4];
-       header("Location: ../../index.html");
+       header("Location: ../../index.php");
    }
    else
    {

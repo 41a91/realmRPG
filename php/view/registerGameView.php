@@ -6,6 +6,8 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="js/save_load_scripts.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 </head>
 <body>
 <form id="newSave" action="../realmRPG/php/control/registerGameController.php" method="post">

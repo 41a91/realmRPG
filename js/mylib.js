@@ -815,7 +815,7 @@ var StateMachine = Class.create({
     {
         this.mStates.push(state);
     },
-    changeState: function(stateIndex,enemy)
+    changeState: function(stateIndex,enemy,message)
     {
         /*if(this.mStack.length > 0)
         {
@@ -824,7 +824,7 @@ var StateMachine = Class.create({
         }*/
         var newState = this.mStates[stateIndex];
         this.mStack.push(newState);
-        newState.onEnter(enemy);
+        newState.onEnter(enemy,message);
     },
     revertState: function()
     {
@@ -880,7 +880,7 @@ var MainMenuState = Class.create({
         {
             if(this.buttons[0].contains(mX,mY) && this.canvas.mouseDown)
             {
-                /*var section = document.getElementById("phpIncludeSection");
+                var section = document.getElementById("phpIncludeSection");
                 section.style.display = "block";
                 this.inPHP = true;
                 $.ajax({
@@ -888,7 +888,7 @@ var MainMenuState = Class.create({
                     cache: false
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);
-                });*/
+                });
 
                 this.stateMachine.changeState(1);
             }
@@ -923,23 +923,21 @@ var MainMenuState = Class.create({
 });
 var DialogueState = Class.create({
 
-    initialize: function(x,y,w,h,container,mainCharacter,message)
+    initialize: function(container,stateMachine,mainCharacter,message)
     {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
         this.container = container;
         this.message = message;
         this.iterater = 0;
         this.map = [];
         this.mainCharacter = mainCharacter;
+        this.stateMachine = stateMachine;
         this.currentMessage = new DialogueBox(0,0,0,0,this.container,this.message[this.iterater]);
     },
-    onEnter: function(map)
+    onEnter: function(map,message)
     {
     this.map = map;
-    this.currentMessage = new DialogueBox(0,30,30,20,this.container,this.message[this.iterater]);
+    this.message = message;
+    this.currentMessage = new DialogueBox(0,70,100,30,this.container,this.message[this.iterater]);
     },
     onExit: function()
     {
@@ -957,7 +955,18 @@ var DialogueState = Class.create({
     },
     update: function(deltaTime,mX,mY)
     {
-        
+        if(this.currentMessage.contains(mX,mY) && this.container.mouseDown)
+        {
+            if(this.iterater >= this.message.length-1)
+            {
+                this.stateMachine.revertState();
+            }
+            else
+            {
+                this.iterater++;
+                this.currentMessage.setMessage(this.message[this.iterater]);
+            }
+        }
     }
 });
 var localGameState = Class.create({
@@ -1007,7 +1016,7 @@ var localGameState = Class.create({
                 }
         }
     },
-    onEnter: function()
+    onEnter: function(mapDetails)
     {
         this.mapSystem1 = new mapSystem(0,0,this.canvas);
         this.mapSystem1.generateMap([0,1],true);
@@ -1365,7 +1374,7 @@ var statsState = Class.create({
         }
         if(this.saveButton.contains(mX,mY))
         {
-            //save function
+            //save stuff
         }
     },
     draw: function(g)
@@ -1400,6 +1409,7 @@ var mapSystem = Class.create({
         this.isLayered = false;
         this.type = -1;
         this.currentMap = [];
+        this.currentMapType = [];
         this.collideLayer = [];
         this.maps = [
             [40,10,50,[2,3],2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
@@ -1414,6 +1424,7 @@ var mapSystem = Class.create({
     },
     generateMap: function(type,layered)
     {
+        this.currentMapType = type;
         if(!layered)
         {
             var tileColumn = 0;
@@ -1512,8 +1523,9 @@ var mapSystem = Class.create({
         var mPlayerPosX = this.maps[this.type][1];
         var mPlayerPosY = this.maps[this.type][2];
         var nextMap = this.maps[this.type][3];
+        var currentMap = this.currentMapType;
 
-        return [mColSize,mRowSize,mPlayerPosX,mPlayerPosY,mLength,nextMap];
+        return [mColSize,mRowSize,mPlayerPosX,mPlayerPosY,mLength,nextMap,currentMap];
     },
     changeMap: function(type,layered)
     {
