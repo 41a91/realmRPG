@@ -858,8 +858,9 @@ var MainMenuState = Class.create({
     {
         var temp = new DialogueBox(35,40,30,8,this.canvas,"New Game");
         var temp1 = new DialogueBox(35,50,30,8,this.canvas,"Load Game");
+        var temp2 = new DialogueBox(35,40,30,8,this.canvas,"Start Game");
         this.mainCharacter.setAlive(true);
-        this.buttons.push(temp,temp1);
+        this.buttons.push(temp,temp1,temp2);
     },
     onExit: function()
     {
@@ -868,10 +869,18 @@ var MainMenuState = Class.create({
     draw: function(g)
     {
         this.title.draw(g);
-        for(var i = 0; i < this.buttons.length; i++)
+        if(1)
         {
-            this.buttons[i].draw(g);
+            for(var i = 0; i < this.buttons.length-1; i++)
+            {
+                this.buttons[i].draw(g);
+            }
         }
+        else
+        {
+            this.buttons[2].draw(g);
+        }
+
     },
     update: function(deltaTime,mX,mY)
     {
@@ -916,8 +925,13 @@ var MainMenuState = Class.create({
 
             }
         }
-
-
+        else
+        {
+            if(this.buttons[2].contains(mX,mY) && this.canvas.mouseDown)
+            {
+                this.stateMachine.changeState(1,mapDetail[6]);
+            }
+        }
     }
 
 });
@@ -1010,7 +1024,7 @@ var localGameState = Class.create({
                         mainCharacter.setMove(false);
                         break;
                     case 80:
-                        stateMachine.changeState(3);
+                        stateMachine.changeState(3,map1);
                         mainCharacter.setMove(false);
             }
                 }
@@ -1018,12 +1032,49 @@ var localGameState = Class.create({
     },
     onEnter: function(mapDetails)
     {
+
         this.mapSystem1 = new mapSystem(0,0,this.canvas);
-        this.mapSystem1.generateMap([0,1],true);
+        this.mapSystem1.generateMap(mapDetails,true);
         this.collideLayer = this.mapSystem1.getCollision();
         this.mapDetails = this.mapSystem1.getMapDetails(0);
         this.mainCharacter.setLoc(this.mapDetails[2],this.mapDetails[3]);
         this.mainCharacter.setMove(true);
+         map1 = this.mapDetails;
+        this.eventFunction = function(e)
+        {
+            if(this.mainCharacter.canMove)
+            {
+                switch(e.keyCode) {
+                    case 37:
+                        mainCharacter.setImg(mainCharacterLeftSheet);
+                        mainCharacter.moveX(-2);
+                        mainCharacter.play(1);
+                        break;
+                    case 39:
+                        mainCharacter.setImg(mainCharacterRightSheet);
+                        mainCharacter.moveX(2);
+                        mainCharacter.play(1);
+                        break;
+                    case 38:
+                        mainCharacter.setImg(mainCharacterBackSheet);
+                        mainCharacter.moveY(-2);
+                        mainCharacter.play(1);
+                        break;
+                    case 40:
+                        mainCharacter.setImg(mainCharacterFrontSheet);
+                        mainCharacter.moveY(2);
+                        mainCharacter.play(1);
+                        break;
+                    case 73:
+                        stateMachine.changeState(2);
+                        mainCharacter.setMove(false);
+                        break;
+                    case 80:
+                        stateMachine.changeState(3,map1);
+                        mainCharacter.setMove(false);
+                }
+            }
+        };
         window.addEventListener("keydown",this.eventFunction);
 
     },
@@ -1082,7 +1133,7 @@ var localGameState = Class.create({
             }
         }
 
-
+        map1 = this.mapDetails;
         this.mainCharacter.update(deltaTime);
     }
 });
@@ -1264,9 +1315,10 @@ var statsState = Class.create({
         this.agilityText = new DialogueBox(0,0,10,5,this.canvas,"Agility: " + this.agility);
         this.levelText = new DialogueBox(0,0,10,5,this.canvas,"Level: " + this.level);
         this.expText = new DialogueBox(0,0,10,5,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
+        this.mapDetails = null;
 
     },
-    onEnter: function()
+    onEnter: function(mapDetails)
     {
         this.stats = mainCharacter.getStats();
         this.str = this.stats[0];
@@ -1295,6 +1347,7 @@ var statsState = Class.create({
         this.levelText = new DialogueBox(0,50,40,10,this.canvas,"Level: " + this.level);
         this.expText = new DialogueBox(0,60,40,10,this.canvas,"Experience: " + this.exp + "/" + this.mainCharacter.getMaxExp());
         this.drawables.push(this.return,this.quit,this.saveButton,this.decoration1,this.decoration2,this.usernameText,this.hpText,this.strText,this.defText,this.agilityText,this.levelText,this.expText,this.staticFrontImage,this.manaText);
+        this.mapDetails = mapDetails;
     },
     onExit: function()
     {
@@ -1374,7 +1427,24 @@ var statsState = Class.create({
         }
         if(this.saveButton.contains(mX,mY))
         {
-            //save stuff
+            var character = JSON.stringify(this.mainCharacter);
+            var map = JSON.stringify(this.mapDetails[6]);
+
+            $.ajax({
+               method: "POST",
+                url: "php/control/saveGameController.php",
+                data: {character1: character, map1: map},
+                success: function(data){
+                    console.log("successful save");
+                },
+                error: function(e)
+                {
+                    console.log("fatal error: " + e.message);
+                }
+            })
+                .done(function(msg){
+                    alert("data did stuff: " + msg);
+                });
         }
     },
     draw: function(g)

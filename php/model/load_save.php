@@ -28,14 +28,11 @@ class load_save extends Model
     }
     public static function saveGame($db,$username,$character,$mapDetails)
     {
-        $q = $db->prepare("update current_games set character=?, mapDetails=? where username=?");
-        $log = $q->execute(array($character,$mapDetails,$username));
-
-        return $log;
+        $db->query("UPDATE current_games SET player='$character', current_map='$mapDetails' where username='$username'");
     }
     public static function registerRequest($db,$username,$password)
     {
-        $q = $db->prepare("insert into current_games(username,password) values(?,?) ");
+        $q = $db->prepare("insert into current_games(username,password,current_map) values(?,?,'[0,1]') ");
         $log = $q->execute(array($username,$password));
 
         return $log;

@@ -38,15 +38,21 @@ var testSword1;
 
 var sessionStarted;
 
+var loggedIn;
+var character;
+var username;
+var mapDetail;
+var map1;
 
 
 
 window.onload = function()
 {
 
-    sessionStarted = '<?php=Session["loggedIn"]?>';
-    console.log(character);
-
+    loggedIn = document.getElementById("loggedIn").value;
+    username = document.getElementById("username").value;
+    character = document.getElementById("character").value;
+    mapDetail = document.getElementById("mapDetail").value;
     mX = 10;
     mY = 10;
 
@@ -76,7 +82,9 @@ window.onload = function()
     fireSpell = document.getElementById("fireSpell");
     healSpell = document.getElementById("healSpell");
 
-
+    testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);
+    testSword = new Weapon(0,0,8,8,weaponDagger,gameCanvas,"Dagger",6,2,10);
+    testSword1 = new Weapon(0,0,8,8,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
 
 
 
@@ -86,7 +94,11 @@ window.onload = function()
     console.log(main2);*/
     if(character != "")
     {
+        console.log("tried making a false hope");
+        console.log(character);
         mainCharacter = JSON.parse(character);
+        console.log(mainCharacter);
+        //use the to json for the main character so i can get all of the functions that are used for the character
     }
     else
     {
@@ -98,6 +110,7 @@ window.onload = function()
         mainCharacter.addItem(testArmor);
         mainCharacter.addItem(testSword);
         mainCharacter.addItem(testSword1);
+        console.log(mainCharacter);
 
     }
 
@@ -111,14 +124,12 @@ window.onload = function()
     stateMachine.addState(new DialogueState(gameCanvas,stateMachine,mainCharacter,["This is a test","Hopfully it works","If not i will fix it"]));
     stateMachine.changeState(0);
 
-    testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);
-    testSword = new Weapon(0,0,8,8,weaponDagger,gameCanvas,"Dagger",6,2,10);
-    testSword1 = new Weapon(0,0,8,8,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
+
 
 
     if(loggedIn)
     {
-        stateMachine.changeState(1,JSON.parse(mapDetail)[6]);
+        stateMachine.changeState(1,JSON.parse(mapDetail));
         //working on doing the map stuff for load
     }
 

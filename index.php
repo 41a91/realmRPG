@@ -1,5 +1,13 @@
 <?php
    session_start();
+
+if(!isset($_SESSION["loggedIn"]))
+{
+    $_SESSION["loggedIn"] = false;
+    $_SESSION["username"] = "";
+    $_SESSION["character"] = "";
+    $_SESSION["mapDetail"] = "";
+}
 ?>
 
 
@@ -14,12 +22,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
     <script src="js/mylib.js" type="text/javascript"></script>
     <script src="js/myscripts.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        var loggedIn = "<?php echo $_SESSION["loggedIn"] ?>";
-        var username = "<?php echo $_SESSION["username"] ?>";
-        var character = "<?php echo $_SESSION["character"] ?>";
-        var mapDetail = "<?php echo $_SESSION["mapDetail"] ?>";
-    </script>
+
 </head>
 <body>
 
@@ -56,6 +59,15 @@
 <img src="images/redHealth.png" id="redHealth" class="noDraw"/>
 <img src="images/blueMana.png" id="blueMana" class="noDraw"/>
 <img src="images/enemy2.png" id="enemy2" class="noDraw"/>
+
+<input id="loggedIn" type="hidden" name="loggedIn" value='<?=$_SESSION["loggedIn"];?>'/>
+<input id="username" type="hidden" name="username" value='<?=$_SESSION["username"];?>'/>
+<input id="character" type="hidden" name="character" value='<?=$_SESSION["character"];?>'/>
+<input id="mapDetail" type="hidden" name="mapDetail" value='<?=$_SESSION["mapDetail"];?>'/>
+
+<?php
+echo $_SESSION["character"];
+?>
 
 </body>
 </html>
