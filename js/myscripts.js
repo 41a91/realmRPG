@@ -95,14 +95,26 @@ window.onload = function()
     if(character != "")
     {
         console.log("tried making a false hope");
-        console.log(character);
-        mainCharacter = JSON.parse(character);
-        console.log(mainCharacter);
+        var charObj = JSON.parse(character);
+        mainCharacter = new Player(charObj[0],charObj[1],charObj[2],charObj[3],gameCanvas,mainCharacterFrontSheet,charObj[6],charObj[7],charObj[8],charObj[9],charObj[10],charObj[11]);
+        mainCharacter.setCurrentHealth(charObj[12]);
+        mainCharacter.setCurrentMana(charObj[13]);
+        for(var i = 0; i < charObj[14].length; i++)
+        {
+            mainCharacter.addItem(new Weapon(charObj[14][0]));
+        }
+        for(i = 0; i < charObj[15].length; i++)
+        {
+            mainCharacter.addItem(new Armor(charObj[15][0]));
+            //finish this save stuffs
+        }
+        mainCharacter.equip(charObj[17]);
+        mainCharacter.equip(charObj[18]);
         //use the to json for the main character so i can get all of the functions that are used for the character
     }
     else
     {
-        mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,"41a91");
+        mainCharacter = new Player(5,5,5,5,gameCanvas,mainCharacterFrontSheet,3,3,[1,1,1,0],100,100,username);
         mainCharacter.play(-1);
 
         mainCharacter.addSpell(new Spell(0,0,5,5,fireSpell,gameCanvas,"Fire Ball",8,30));
@@ -110,8 +122,6 @@ window.onload = function()
         mainCharacter.addItem(testArmor);
         mainCharacter.addItem(testSword);
         mainCharacter.addItem(testSword1);
-        console.log(mainCharacter);
-
     }
 
     stateMachine = new StateMachine();

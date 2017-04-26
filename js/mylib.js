@@ -42,6 +42,14 @@ var Sprite = Class.create({
     {
         return this.actualY;
     },
+    getActualWidth: function()
+    {
+      return this.actualWidth;
+    },
+    getActualHeight: function()
+    {
+      return this.actualHeight;
+    },
     getX: function()
     {
         return this.x;
@@ -303,9 +311,17 @@ var Player = Class.create(AnimatedSprite,{
     {
         return this.currentHealth;
     },
+    setCurrentHealth: function(hp)
+    {
+      this.currentHealth = hp;
+    },
     getMaxHealth: function()
     {
       return this.maxHealth;
+    },
+    setMaxHealth: function(hp)
+    {
+      this.maxHealth = hp;
     },
     getLevel: function()
     {
@@ -333,9 +349,17 @@ var Player = Class.create(AnimatedSprite,{
     {
         return this.currentMana;
     },
+    setCurrentMana: function(mp)
+    {
+      this.currentMana = mp;
+    },
     getMaxMana: function()
     {
       return this.maxMana;
+    },
+    setMaxMana: function(mp)
+    {
+      this.maxMana = mp;
     },
     getSpells: function()
     {
@@ -494,6 +518,46 @@ var Player = Class.create(AnimatedSprite,{
             this.levelUp();
             this.nextLevelXP += (500*this.level);
         }
+    },
+    getSaveWeapons: function()
+    {
+        var array = [];
+      for(var i = 0; i < this.inv.length; i++)
+      {
+          if(this.inv[i].getType() == "Weapon")
+          {
+              array.push(this.inv[i].saveWeapon());
+          }
+      }
+      return array;
+    },
+    getSaveArmors: function()
+    {
+        var array = [];
+        for(var i = 0; i < this.inv.length; i++)
+        {
+            if(this.inv[i].getType() == "Armor")
+            {
+                array.push(this.inv[i].saveArmor());
+            }
+        }
+        return array;
+    },
+    getSaveSpells: function()
+    {
+      var array = [];
+        for(var i = 0; i < this.spells.length; i++)
+        {
+            array.push(this.spells[i].saveSpell());
+        }
+        return array;
+    },
+    saveCharacter: function()
+    {
+        var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),gameCanvas,mainCharacterFrontSheet,3,3,this.getStats(),this.getMaxHealth(),this.getMaxMana(),this.getUser(),this.getCurrentHealth(),this.getCurrentMana(),this.getSaveWeapons(),this.getSaveArmors(),this.getSaveSpells(),this.getCurrentArmor().saveArmor(),this.getCurrentWeapon().saveWeapon()];
+        var data = JSON.stringify(info);
+
+        return data;
     }
 });
 
@@ -606,13 +670,25 @@ var Weapon = Class.create(imageSprite,{
     {
         return this.spd;
     },
+    setSpd: function(spd)
+    {
+      this.spd = spd;
+    },
     getDamage: function()
     {
         return this.damage;
     },
+    setDamage: function(dmg)
+    {
+      this.damage = dmg;
+    },
     getPrice: function()
     {
        return this.price;
+    },
+    setPrice: function(price)
+    {
+      this.price = price;
     },
     getName: function()
     {
@@ -625,6 +701,11 @@ var Weapon = Class.create(imageSprite,{
     setName: function(name)
     {
         this.name = name;
+    },
+    saveWeapon: function()
+    {
+        var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),this.getImage(),this.getName(),this.getSpd(),this.getDamage(),this.getPrice()];
+        return info;
     }
 });
 
@@ -642,9 +723,17 @@ var Armor = Class.create(imageSprite,{
     {
         return this.defence;
     },
+    setDefence: function(def)
+    {
+      this.defence = def;
+    },
     getPrice: function()
     {
         return this.price;
+    },
+    setPrice: function(price)
+    {
+      this.price = price;
     },
     getName: function()
     {
@@ -657,6 +746,11 @@ var Armor = Class.create(imageSprite,{
     setName: function(name)
     {
         this.name = name;
+    },
+    saveArmor: function()
+    {
+        var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),this.getImage(),this.getName(),this.getDefence(),this.getPrice()];
+        return info;
     }
 });
 
@@ -721,6 +815,11 @@ var Spell = Class.create(imageSprite,{
     getDamage: function()
     {
         return this.damage;
+    },
+    saveSpell: function()
+    {
+        var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),this.getImage(),this.getName(),this.getDamage(),this.getManaCost()];
+        return info;
     }
 });
 
@@ -1427,7 +1526,7 @@ var statsState = Class.create({
         }
         if(this.saveButton.contains(mX,mY))
         {
-            var character = JSON.stringify(this.mainCharacter);
+            var character = this.mainCharacter.saveCharacter();
             var map = JSON.stringify(this.mapDetails[6]);
 
             $.ajax({
@@ -1442,9 +1541,6 @@ var statsState = Class.create({
                     console.log("fatal error: " + e.message);
                 }
             })
-                .done(function(msg){
-                    alert("data did stuff: " + msg);
-                });
         }
     },
     draw: function(g)
