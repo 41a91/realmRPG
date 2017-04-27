@@ -665,6 +665,7 @@ var Weapon = Class.create(imageSprite,{
        this.price = price;
        this.name = name;
        this.type = "Weapon";
+       this.img1 = img;
    },
     getSpd: function()
     {
@@ -718,6 +719,7 @@ var Armor = Class.create(imageSprite,{
         this.price = price;
         this.name = name;
         this.type = "Armor";
+        this.img1 = img;
     },
     getDefence: function()
     {
@@ -795,6 +797,7 @@ var Spell = Class.create(imageSprite,{
         this.type = "Spell";
         this.damage = damage;
         this.manaCost = manaCost;
+        console.log(this.getImage());
     },
     getName: function()
     {
@@ -818,6 +821,7 @@ var Spell = Class.create(imageSprite,{
     },
     saveSpell: function()
     {
+        console.log(this.img1);
         var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),this.getImage(),this.getName(),this.getDamage(),this.getManaCost()];
         return info;
     }

@@ -64,10 +64,32 @@ if(!isset($_SESSION["loggedIn"]))
 <input id="username" type="hidden" name="username" value='<?=$_SESSION["username"];?>'/>
 <input id="character" type="hidden" name="character" value='<?=$_SESSION["character"];?>'/>
 <input id="mapDetail" type="hidden" name="mapDetail" value='<?=$_SESSION["mapDetail"];?>'/>
-
+<section id="errors">
 <?php
-echo $_SESSION["character"];
+
+
+if(isset($_SESSION["alpha"]))
+{
+    if($_SESSION["alpha"] === true)
+    {
+        echo "Those characters are not aloud in the username <br/>";
+    }
+    if($_SESSION["badPass"] === true)
+    {
+        echo "Your password must have an uppercase, lowercase, and a number  <br/>";
+    }
+    if($_SESSION["nameUsed"] === true)
+    {
+        echo "That username is already taken  <br/>";
+    }
+}
+if(isset($_SESSION["loadGameError"]) && $_SESSION["loadGameError"] === true)
+{
+    echo "That username and password combination is incorrect  <br/>";
+}
+var_dump($_SESSION["r"]);
 ?>
+</section>
 
 </body>
 </html>

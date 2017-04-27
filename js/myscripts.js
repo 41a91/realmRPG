@@ -36,8 +36,6 @@ var testArmor;
 var testSword;
 var testSword1;
 
-var sessionStarted;
-
 var loggedIn;
 var character;
 var username;
@@ -101,15 +99,27 @@ window.onload = function()
         mainCharacter.setCurrentMana(charObj[13]);
         for(var i = 0; i < charObj[14].length; i++)
         {
-            mainCharacter.addItem(new Weapon(charObj[14][0]));
+            mainCharacter.addItem(new Weapon(charObj[14][i][0],charObj[14][i][1],charObj[14][i][2],charObj[14][i][3],weaponDagger,gameCanvas,charObj[14][i][5],charObj[14][i][6],charObj[14][i][7],charObj[14][i][8]));
         }
         for(i = 0; i < charObj[15].length; i++)
         {
-            mainCharacter.addItem(new Armor(charObj[15][0]));
-            //finish this save stuffs
+            mainCharacter.addItem(new Armor(charObj[15][i][0],charObj[15][i][1],charObj[15][i][2],charObj[15][i][3],armorLight,gameCanvas,charObj[15][i][5],charObj[15][i][6],charObj[15][i][7]));
         }
-        mainCharacter.equip(charObj[17]);
-        mainCharacter.equip(charObj[18]);
+        for(i = 0; i < charObj[16].length; i++)
+        {
+            if(charObj[16][i][5] == "Heal")
+            {
+                var image = healSpell;
+            }
+            else
+            {
+                image = fireSpell;
+            }
+
+            mainCharacter.addSpell(new Spell(charObj[16][i][0],charObj[16][i][1],charObj[16][i][2],charObj[16][i][3],image,gameCanvas,charObj[16][i][5],charObj[16][i][6],charObj[16][i][7]));
+        }
+        mainCharacter.equip(new Weapon(charObj[17][0],charObj[17][1],charObj[17][2],charObj[17][3],weaponDagger,gameCanvas,charObj[17][5],charObj[17][6],charObj[17][7],charObj[17][8]));
+        mainCharacter.equip(new Armor(charObj[18][0],charObj[18][1],charObj[18][2],charObj[18][3],armorLight,gameCanvas,charObj[18][5],charObj[18][6],charObj[18][7]));
         //use the to json for the main character so i can get all of the functions that are used for the character
     }
     else

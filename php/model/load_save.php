@@ -15,10 +15,18 @@ class load_save extends Model
 
     public static function loginRequest($db,$username,$password)
     {
-        $q = $db->query("select * from current_games where username='$username' and password='$password' limit 1");
+        $q = $db->query("select * from current_games where username='$username' limit 1");
 
         $user = $q->fetch();
-        return $user;
+
+        if(password_verify($password,$user[2]))
+        {
+            return $user;
+        }
+        else
+        {
+            return false;
+        }
     }
     public static function checkIfUserExists($db,$username)
     {
@@ -33,7 +41,11 @@ class load_save extends Model
     public static function registerRequest($db,$username,$password)
     {
         $q = $db->prepare("insert into current_games(username,password,current_map) values(?,?,'[0,1]') ");
-        $log = $q->execute(array($username,$password));
+
+        $options = ['cost' => 12];
+        $newpass = password_hash($password,PASSWORD_DEFAULT,$options);
+
+        $log = $q->execute(array($username,$newpass));
 
         return $log;
     }

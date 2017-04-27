@@ -20,11 +20,19 @@ if(isset($post["username"]) && isset($post["password"]))
    {
        $userObj = load_save::loginRequest($db,$post["username"],$post["password"]);
 
-       $_SESSION["loggedIn"] = true;
-       $_SESSION["username"] = $userObj[1];
-       $_SESSION["character"] = $userObj[3];
-       $_SESSION["mapDetail"] = $userObj[4];
-       header("Location: ../../index.php");
+       if($userObj !== false)
+       {
+           $_SESSION["loggedIn"] = true;
+           $_SESSION["username"] = $userObj[1];
+           $_SESSION["character"] = $userObj[3];
+           $_SESSION["mapDetail"] = $userObj[4];
+           header("Location: ../../index.php");
+       }
+       else
+       {
+           $_SESSION["loadGameError"] = true;
+           header("Location: ../../index.php");
+       }
    }
    else
    {
