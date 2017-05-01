@@ -554,7 +554,15 @@ var Player = Class.create(AnimatedSprite,{
     },
     saveCharacter: function()
     {
-        var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),gameCanvas,mainCharacterFrontSheet,3,3,this.getStats(),this.getMaxHealth(),this.getMaxMana(),this.getUser(),this.getCurrentHealth(),this.getCurrentMana(),this.getSaveWeapons(),this.getSaveArmors(),this.getSaveSpells(),this.getCurrentArmor().saveArmor(),this.getCurrentWeapon().saveWeapon()];
+        var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),gameCanvas,mainCharacterFrontSheet,3,3,this.getStats(),this.getMaxHealth(),this.getMaxMana(),this.getUser(),this.getCurrentHealth(),this.getCurrentMana(),this.getSaveWeapons(),this.getSaveArmors(),this.getSaveSpells()];
+        if(this.getCurrentArmor() != null)
+        {
+            info.push(this.getCurrentArmor().saveArmor());
+        }
+        if(this.getCurrentWeapon() != null)
+        {
+            info.push(this.getCurrentWeapon().saveWeapon());
+        }
         var data = JSON.stringify(info);
 
         return data;
@@ -955,6 +963,7 @@ var MainMenuState = Class.create({
        this.mainCharacter = mainCharacter;
        this.buttons = [];
        this.inPHP = false;
+       this.buttonState = false;
        this.title = new DialogueBox(25,5,50,20,canvas,"RealmRPG");
    },
     onEnter: function()
@@ -972,7 +981,7 @@ var MainMenuState = Class.create({
     draw: function(g)
     {
         this.title.draw(g);
-        if(1)
+        if(!this.buttonState)
         {
             for(var i = 0; i < this.buttons.length-1; i++)
             {
@@ -1002,7 +1011,7 @@ var MainMenuState = Class.create({
                     $("#phpIncludeSection").append(html);
                 });
 
-                this.stateMachine.changeState(1);
+                this.buttonState = true;
             }
             else if(this.buttons[1].contains(mX,mY) && this.canvas.mouseDown)
             {
@@ -1015,6 +1024,7 @@ var MainMenuState = Class.create({
                 }).done(function(html){
                     $("#phpIncludeSection").append(html);
                 });
+                this.buttonState = true;
                /* var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function()
                 {
@@ -1032,7 +1042,7 @@ var MainMenuState = Class.create({
         {
             if(this.buttons[2].contains(mX,mY) && this.canvas.mouseDown)
             {
-                this.stateMachine.changeState(1,mapDetail[6]);
+                this.stateMachine.changeState(1,mapDetail);
             }
         }
     }

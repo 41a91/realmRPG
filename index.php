@@ -87,7 +87,7 @@ if(isset($_SESSION["loadGameError"]) && $_SESSION["loadGameError"] === true)
 {
     echo "That username and password combination is incorrect  <br/>";
 }
-var_dump($_SESSION["r"]);
+
 ?>
 </section>
 

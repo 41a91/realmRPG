@@ -31,7 +31,9 @@ class load_save extends Model
     public static function checkIfUserExists($db,$username)
     {
         $q = $db->prepare("select username from current_games where username=? limit 1");
-        $log = $q->execute(array($username));
+        $q->execute(array($username));
+        $log = $q->fetchColumn();
+
         return $log;
     }
     public static function saveGame($db,$username,$character,$mapDetails)
@@ -42,8 +44,7 @@ class load_save extends Model
     {
         $q = $db->prepare("insert into current_games(username,password,current_map) values(?,?,'[0,1]') ");
 
-        $options = ['cost' => 12];
-        $newpass = password_hash($password,PASSWORD_DEFAULT,$options);
+        $newpass = password_hash($password,PASSWORD_DEFAULT);
 
         $log = $q->execute(array($username,$newpass));
 

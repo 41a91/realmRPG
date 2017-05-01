@@ -8,9 +8,10 @@ use load_save_games\load_save;
 use load_save_games\Model;
 
 
-
-$post = $_POST;
-$session = $_SESSION;
+unset($_SESSION["alpha"]);
+unset($_SESSION["nameUsed"]);
+unset($_SESSION["badPass"]);
+unset($_SESSION["loadGameError"]);
 
 if(isset($_POST["username"]) && isset($_POST["password"]))
 {
@@ -24,7 +25,7 @@ if(isset($_POST["username"]) && isset($_POST["password"]))
 
         $r = load_save::checkIfUserExists($db,$user);
         $_SESSION["r"] = $r;
-        if($r !== true)
+        if($r !== false)
         {
             $_SESSION["nameUsed"] = true;
             $_SESSION["loggedIn"] = false;
@@ -53,9 +54,10 @@ if(isset($_POST["username"]) && isset($_POST["password"]))
 
         if(!$_SESSION["alpha"] && !$_SESSION["nameUsed"] && !$_SESSION["badPass"])
         {
-            load_save::registerRequest($db, $user, $pass);
 
+            load_save::registerRequest($db, $user, $pass);
             $userObj = load_save::loginRequest($db, $user, $pass);
+
             $_SESSION["loggedIn"] = true;
             $_SESSION["username"] = $userObj[1];
             $_SESSION["character"] = $userObj[3];

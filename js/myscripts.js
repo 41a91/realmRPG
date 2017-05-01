@@ -149,6 +149,7 @@ window.onload = function()
 
     if(loggedIn)
     {
+        console.log(mapDetail);
         stateMachine.changeState(1,JSON.parse(mapDetail));
         //working on doing the map stuff for load
     }

@@ -9,16 +9,12 @@ use load_save_games\load_save;
 use load_save_games\Model;
 
 
-
-$post = $_POST;
-
-
-if(isset($post["username"]) && isset($post["password"]))
+if(isset($_POST["username"]) && isset($_POST["password"]))
 {
-   $check = load_save::checkIfUserExists($db,$post["username"]);
+   $check = load_save::checkIfUserExists($db,$_POST["username"]);
    if($check)
    {
-       $userObj = load_save::loginRequest($db,$post["username"],$post["password"]);
+       $userObj = load_save::loginRequest($db,$_POST["username"],$_POST["password"]);
 
        if($userObj !== false)
        {
