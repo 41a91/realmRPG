@@ -1536,6 +1536,17 @@ var statsState = Class.create({
         }
         if(this.quit.contains(mX,mY))
         {
+            $.ajax({
+                method: "POST",
+                url: "php/control/logoutController.php",
+                success: function(data){
+                    console.log("successful exit");
+                },
+                error: function(e)
+                {
+                    console.log("fatal error: " + e.message);
+                }
+            });
         this.stateMachine.returnToMenu();
         }
         if(this.saveButton.contains(mX,mY))
@@ -1554,7 +1565,7 @@ var statsState = Class.create({
                 {
                     console.log("fatal error: " + e.message);
                 }
-            })
+            });
         }
     },
     draw: function(g)
