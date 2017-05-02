@@ -59,6 +59,10 @@ if(!isset($_SESSION["loggedIn"]))
 <img src="images/redHealth.png" id="redHealth" class="noDraw"/>
 <img src="images/blueMana.png" id="blueMana" class="noDraw"/>
 <img src="images/enemy2.png" id="enemy2" class="noDraw"/>
+<img src="images/swordAnimation.png" id="swordAnimation" class="noDraw"/>
+<img src="images/healSpellAnimation.png" id="healSpellAnimation" class="noDraw"/>
+<img src="images/explosionAnimation.png" id="explosionAnimation" class="noDraw"/>
+<img src="images/scratchAnimation.png" id="scratchAnimation" class="noDraw"/>
 
 <input id="loggedIn" type="hidden" name="loggedIn" value='<?=$_SESSION["loggedIn"];?>'/>
 <input id="username" type="hidden" name="username" value='<?=$_SESSION["username"];?>'/>

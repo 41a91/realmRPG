@@ -1230,7 +1230,7 @@ var localGameState = Class.create({
                 if(this.collideLayer[i].getID() == 10)
                 {
                     var r = [randomNumber(0,5),randomNumber(0,5),randomNumber(0,5),randomNumber(50,100),randomNumber(50,100),randomNumber(1,45),randomNumber(1,15),randomNumber(300,500)];
-                    var beholder = new Enemy(0,0,20,20,this.canvas,enemy1,3,3,[r[0],r[1],r[2]],r[3],r[4],new Weapon(0,0,5,5,weaponDagger,this.canvas,r[5],r[6],r[5]+r[6],r[7]),r[7]);
+                    var beholder = new Enemy(0,0,15,15,this.canvas,enemy1,1,1,[r[0],r[1],r[2]],r[3],r[4],new Weapon(0,0,5,5,weaponDagger,this.canvas,r[5],r[6],r[5]+r[6],r[7]),r[7]);
                     this.collideLayer[i].setVisible(false);
                     this.collideLayer[i].setID(-1);
                     this.stateMachine.changeState(4,beholder);
@@ -1238,7 +1238,7 @@ var localGameState = Class.create({
                 if(this.collideLayer[i].getID() == 11)
                 {
                     var r = [randomNumber(0,5),randomNumber(0,5),randomNumber(0,5),randomNumber(50,100),randomNumber(50,100),randomNumber(1,20),randomNumber(1,15),randomNumber(300,500)];
-                    var ghost = new Enemy(0,0,20,20,this.canvas,enemy2,3,3,[r[0],r[1],r[2]],r[3],r[4],new Armor(0,0,5,5,armorLight,this.canvas,r[5],r[6],r[5]+r[6]),r[7]);
+                    var ghost = new Enemy(0,0,20,20,this.canvas,enemy2,1,1,[r[0],r[1],r[2]],r[3],r[4],new Armor(0,0,5,5,armorLight,this.canvas,r[5],r[6],r[5]+r[6]),r[7]);
                     this.collideLayer[i].setVisible(false);
                     this.collideLayer[i].setID(-1);
                     this.stateMachine.changeState(4,ghost);
@@ -2057,6 +2057,10 @@ var battleAction = Class.create({
        this.mainStateMachine = mainStateMachine;
        this.canvas = canvas;
        this.action = 0;
+       this.swordSlice = new AnimatedSprite(20,10,20,20,this.canvas,swordAnimation,4,4);
+       this.healAnimation = new AnimatedSprite(70,50,20,20,this.canvas,healSpellAnimation,4,4);
+       this.explode = new AnimatedSprite(20,10,20,20,this.canvas,explosionAnimation,4,4);
+       this.scratch = new AnimatedSprite(70,50,20,20,this.canvas,scratchAnimation,1,1);
        this.spells = [];
    },
     onEnter: function(action)
@@ -2070,13 +2074,14 @@ var battleAction = Class.create({
         this.action = 0;
         this.spells = [];
     },
-    update: function()
+    update: function(deltaTime)
     {
         if(this.action.getType() == "player")
         {
             this.spells = this.mainCharacter.getSpells();
             if(this.action.getActionType() == -1)
             {
+                this.swordSlice.update(deltaTime);
                 this.enemy.takeDamage(this.mainCharacter.getTotalDamage());
                 this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                 this.battleSystem.revertState();
@@ -2085,12 +2090,14 @@ var battleAction = Class.create({
             {
                 if(this.spells[this.action.getActionType()].getName() == "Heal")
                 {
+                    this.healAnimation.update(deltaTime);
                     this.mainCharacter.heal(this.spells[this.action.getActionType()].getDamage());
                     this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
                 }
                 else
                 {
+                    this.explode.update(deltaTime);
                     this.enemy.takeDamage(this.spells[this.action.getActionType()].getDamage());
                     this.battleState.addAction(new EAction(this.mainCharacter,this.enemy,this.canvas));
                     this.battleSystem.revertState();
@@ -2132,9 +2139,35 @@ var battleAction = Class.create({
             }
         }
     },
-    draw: function()
+    draw: function(g)
     {
+        if(this.action.getType() == "player")
+        {
+            this.spells = this.mainCharacter.getSpells();
+            if(this.action.getActionType() == -1)
+            {
+                this.swordSlice.draw(g);
+                console.log("it sliced");
+            }
+            else
+            {
+                if(this.spells[this.action.getActionType()].getName() == "Heal")
+                {
+                    this.healAnimation.draw(g);
+                }
+                else
+                {
+                this.explode.draw(g);
+                }
+            }
 
+        }
+        else
+        {
+
+                this.scratch.draw(g);
+
+        }
     }
 });
 

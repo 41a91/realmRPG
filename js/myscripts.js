@@ -42,6 +42,11 @@ var username;
 var mapDetail;
 var map1;
 
+var swordAnimation;
+var healSpellAnimation;
+var explosionAnimation;
+var scratchAnimation;
+
 
 
 window.onload = function()
@@ -83,6 +88,11 @@ window.onload = function()
     testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);
     testSword = new Weapon(0,0,8,8,weaponDagger,gameCanvas,"Dagger",6,2,10);
     testSword1 = new Weapon(0,0,8,8,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
+
+    swordAnimation = document.getElementById("swordAnimation");
+    healSpellAnimation = document.getElementById("healSpellAnimation");
+    explosionAnimation = document.getElementById("explosionAnimation");
+    scratchAnimation = document.getElementById("scratchAnimation");
 
 
 
