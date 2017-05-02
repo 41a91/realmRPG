@@ -4,6 +4,8 @@ var canvasRect;
 
 var enemy2;
 var enemy1;
+var caveFisher;
+var NPC;
 
 var mainCharacter;
 var mainCharacterRightSheet;
@@ -47,6 +49,8 @@ var healSpellAnimation;
 var explosionAnimation;
 var scratchAnimation;
 
+var menuBackground;
+
 
 
 window.onload = function()
@@ -66,6 +70,8 @@ window.onload = function()
 
     enemy1 = document.getElementById("enemy1");
     enemy2 = document.getElementById("enemy2");
+    caveFisher = document.getElementById("caveFisher");
+    NPC = document.getElementById("wizardNPC");
 
     mainCharacterFrontSheet = document.getElementById("mainCharacterFront");
     mainCharacterRightSheet = document.getElementById("mainCharacterRight");
@@ -94,15 +100,12 @@ window.onload = function()
     explosionAnimation = document.getElementById("explosionAnimation");
     scratchAnimation = document.getElementById("scratchAnimation");
 
+    menuBackground = document.getElementById("menuBackground");
 
 
-    /*console.log(mainCharacter.getJSONCharacter());
 
-    var main2 = JSON.parse(mainCharacter.getJSONCharacter());
-    console.log(main2);*/
     if(character != "")
     {
-        console.log("tried making a false hope");
         var charObj = JSON.parse(character);
         mainCharacter = new Player(charObj[0],charObj[1],charObj[2],charObj[3],gameCanvas,mainCharacterFrontSheet,charObj[6],charObj[7],charObj[8],charObj[9],charObj[10],charObj[11]);
         mainCharacter.setCurrentHealth(charObj[12]);
@@ -159,7 +162,7 @@ window.onload = function()
 
     if(loggedIn)
     {
-        console.log(mapDetail);
+
         stateMachine.changeState(1,JSON.parse(mapDetail));
         //working on doing the map stuff for load
     }

@@ -805,7 +805,6 @@ var Spell = Class.create(imageSprite,{
         this.type = "Spell";
         this.damage = damage;
         this.manaCost = manaCost;
-        console.log(this.getImage());
     },
     getName: function()
     {
@@ -829,7 +828,6 @@ var Spell = Class.create(imageSprite,{
     },
     saveSpell: function()
     {
-        console.log(this.img1);
         var info = [this.getActualX(),this.getActualY(),this.getActualWidth(),this.getActualHeight(),this.getImage(),this.getName(),this.getDamage(),this.getManaCost()];
         return info;
     }
@@ -947,7 +945,6 @@ var StateMachine = Class.create({
         var length = this.mStack.length;
             for(var i = 1; i < length; i++)
             {
-                console.log("i: " + i);
                 this.revertState();
             }
     }
@@ -965,6 +962,7 @@ var MainMenuState = Class.create({
        this.inPHP = false;
        this.buttonState = false;
        this.title = new DialogueBox(25,5,50,20,canvas,"RealmRPG");
+       this.background = new imageSprite(0,0,100,100,menuBackground,canvas);
    },
     onEnter: function()
     {
@@ -980,6 +978,7 @@ var MainMenuState = Class.create({
     },
     draw: function(g)
     {
+        this.background.draw(g);
         this.title.draw(g);
         if(!this.buttonState)
         {
@@ -1211,14 +1210,12 @@ var localGameState = Class.create({
     },
     update: function(deltaTime,mX,mY)
     {
-        //console.log(this.collideLayer[0].getY()+this.collideLayer[0].getHeight());
-        //console.log((this.mainCharacter.getX()+16) + " " + (this.mainCharacter.getY()+24) + " ");
+
         for(var i = 0; i < this.collideLayer.length; i++)
         {
             if(this.collideLayer[i].contains(this.mainCharacter.getX()+16,this.mainCharacter.getY()+24) && this.collideLayer[i].getID() != -1)
             {
-                //console.log("hit: " + this.collideLayer[i].getX() + " " + this.collideLayer[i].getY());
-                //console.log("Player: " + this.mainCharacter.getX() + " " + this.mainCharacter.getY());
+
                 collisionDirection(this.mainCharacter, this.collideLayer[i]);
                 if(this.collideLayer[i].getID() == 9)
                 {
@@ -1626,7 +1623,7 @@ var mapSystem = Class.create({
             {
                 var pixelPosX = this.x + tileColumn * 5;
                 var pixelPosY = this.y + tileRow *5;
-                //console.log("i: " + i + " x: " + pixelPosX + " y: " + pixelPosY);
+
 
                 var temp = new Tile(pixelPosX,pixelPosY,5,5,this.tiles[this.maps[type][i]],this.container,this.maps[type][i]);
                 this.currentMap.push(temp);
@@ -1757,6 +1754,7 @@ var battleState = Class.create({
        this.stateMachine = stateMachine;
        this.battleSystem = new StateMachine();
        this.mBattleStance = new imageSprite(0,0,8,8,mainCharacterBattleStance,canvas);
+       this.background = new imageSprite(0,0,100,100,menuBackground,canvas);
        this.actions = mergeSort(this.actions);
        this.battleTicks = 0;
        this.playerCurrentHP = 0;
@@ -1808,6 +1806,7 @@ var battleState = Class.create({
     },
     draw: function(g)
     {
+        this.background.draw(g);
         this.playerCurrentHP.draw(g);
         this.playerMaxHP.draw(g);
         this.playerCurrentMP.draw(g);
@@ -1862,7 +1861,6 @@ var battleTick = Class.create({
         }
         if(!this.enemy.isAlive())
         {
-            console.log("enemy died in battletick");
             this.battleSystem.changeState(2);
         }
 
@@ -2147,7 +2145,6 @@ var battleAction = Class.create({
             if(this.action.getActionType() == -1)
             {
                 this.swordSlice.draw(g);
-                console.log("it sliced");
             }
             else
             {
@@ -2192,7 +2189,6 @@ var DeadState = Class.create({
     {
         var timer = setTimeout(function(){
             stateMachine.returnToMenu();
-            console.log("Hahahahaha");
             clearTimeout(timer);
         },2000);
     },
@@ -2225,7 +2221,6 @@ var winState = Class.create({
     },
     update: function(deltaTime,mX,mY)
     {
-        console.log("its running");
         if(this.continue.contains(mX,mY))
         {
             this.mainCharacter.addItem(this.enemy.getItems());
@@ -2320,8 +2315,7 @@ function collisionDirection(character,tile)
     {
         console.log("you found the glitch in the game!");
     }
-    //console.log("topCall: " + topColl + " bottColl: " + bottomColl + " rightColl: " + rightColl + " leftColl: " + leftColl);
-    //console.log("x: " + character.getXSpd() + " y: " + character.getYSpd());
+
 };
 function mergeSort(actions)
 {
