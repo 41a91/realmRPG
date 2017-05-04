@@ -1240,6 +1240,15 @@ var localGameState = Class.create({
                     this.collideLayer[i].setID(-1);
                     this.stateMachine.changeState(4,ghost);
                 }
+                if(this.collideLayer[i].getID() == 12)
+                {
+                    //spawn in cave fisher
+                }
+                if(this.collideLayer[i].getID() == 13)
+                {
+                    //spawn in NPC and make him talk about stuff in dialogue state depending on what map he is located on HA
+                }
+
             }
         }
 
@@ -1294,7 +1303,7 @@ var inventoryState = Class.create({
             if(tileColumn >= 20)
             {
                 tileColumn = 0;
-                tileRow += 1;
+                tileRow += 4;
             }
         }
     },
@@ -1314,12 +1323,13 @@ var inventoryState = Class.create({
     {
         for(var i = 0; i < this.inventory.length; i++)
         {
-            if(this.inventory[i].contains(mX,mY) && !this.one)
+            if(this.inventory[i].contains(mX,mY) && !this.one && this.canvas.mouseDown)
             {
 
                 this.clicked = this.inventory[i];
-                var x = this.inventory[i].getX()/5;
-                var y = this.inventory[i].getY()/3;
+                console.log(this.inventory[i]);
+                var x = this.inventory[i].getActualX();
+                var y = this.inventory[i].getActualY()+5;
 
                 this.equip.setLoc(x,y);
                 this.dropItem.setLoc(x,y+5);
@@ -1341,26 +1351,29 @@ var inventoryState = Class.create({
             }
             if(this.clicked != 0 && this.one)
             {
-                if(this.equip.contains(mX,mY))
+                if(this.equip.contains(mX,mY) && this.canvas.mouseDown)
                 {
                     if(this.clicked.getType() == "Armor" || this.clicked.getType() == "Weapon")
                     {
                         this.mainCharacter.equip(this.clicked);
                         this.one = false;
                         this.inventory = this.mainCharacter.getInv();
+                        this.clicked = 0;
                         this.updateInv();
                     }
                 }
-                else if(this.dropItem.contains(mX,mY))
+                else if(this.dropItem.contains(mX,mY) && this.canvas.mouseDown)
                 {
                     this.mainCharacter.removeItem(this.clicked);
                     this.one = false;
                     this.inventory = this.mainCharacter.getInv();
+                    this.clicked = 0;
                     this.updateInv();
                 }
-                if(!this.clicked.contains(mX,mY))
+                else if(!this.clicked.contains(mX,mY))
                 {
                     this.one = false;
+                    this.clicked = 0;
                 }
             }
         }
@@ -1628,7 +1641,7 @@ var mapSystem = Class.create({
                 var temp = new Tile(pixelPosX,pixelPosY,5,5,this.tiles[this.maps[type][i]],this.container,this.maps[type][i]);
                 this.currentMap.push(temp);
 
-                if(this.maps[type][i] == 3 || this.maps[type][i] == 4 || this.maps[type][i] == 5 || this.maps[type][i] == 9 || this.maps[type][i] == 10 || this.maps[type][i] == 11)
+                if(this.maps[type][i] == 3 || this.maps[type][i] == 4 || this.maps[type][i] == 5 || this.maps[type][i] == 9 || this.maps[type][i] == 10 || this.maps[type][i] == 11 || this.maps[type][i] == 12 || this.maps[type][i] == 13)
                 {
                     this.collideLayer.push(temp);
                 }
@@ -1661,7 +1674,7 @@ var mapSystem = Class.create({
 
                      this.currentMap[i].push(temp);
 
-                    if(this.maps[type[i]][k] == 3 || this.maps[type[i]][k] == 4 || this.maps[type[i]][k] == 5 || this.maps[type[i]][k] == 9 || this.maps[type[i]][k] == 10 || this.maps[type[i]][k] == 11)
+                    if(this.maps[type[i]][k] == 3 || this.maps[type[i]][k] == 4 || this.maps[type[i]][k] == 5 || this.maps[type[i]][k] == 9 || this.maps[type[i]][k] == 10 || this.maps[type[i]][k] == 11 || this.maps[type[i]][k] == 12 || this.maps[type[i]][k] == 13)
                     {
                         this.collideLayer.push(temp);
                     }
