@@ -20,6 +20,7 @@ var blueMana;
 
 var armorLight;
 var weaponDagger;
+var weaponSword;
 var weaponUnequip;
 var armorUnequip;
 
@@ -85,15 +86,15 @@ window.onload = function()
 
     armorLight = document.getElementById("ArmorLight");
     weaponDagger = document.getElementById("WeaponDagger");
+    weaponSword = document.getElementById("sword");
     weaponUnequip = document.getElementById("weaponUnequip");
     armorUnequip = document.getElementById("armorUnequip");
 
     fireSpell = document.getElementById("fireSpell");
     healSpell = document.getElementById("healSpell");
 
-    testArmor = new Armor(0,0,8,8,armorLight,gameCanvas,"Leather Armor",3,20);
-    testSword = new Weapon(0,0,8,8,weaponDagger,gameCanvas,"Dagger",6,2,10);
-    testSword1 = new Weapon(0,0,8,8,mainCharacterFrontSheet,gameCanvas,"Iron Sword",3,10,20);
+    testArmor = new Armor(0,0,5,5,armorLight,gameCanvas,"Leather Armor",3,20);
+    testSword = new Weapon(0,0,5,5,weaponDagger,gameCanvas,"Dagger",10,2,10);
 
     swordAnimation = document.getElementById("swordAnimation");
     healSpellAnimation = document.getElementById("healSpellAnimation");
@@ -144,7 +145,6 @@ window.onload = function()
         mainCharacter.addSpell(new Spell(0,0,5,5,healSpell,gameCanvas,"Heal", 50,50));
         mainCharacter.addItem(testArmor);
         mainCharacter.addItem(testSword);
-        mainCharacter.addItem(testSword1);
     }
 
     stateMachine = new StateMachine();

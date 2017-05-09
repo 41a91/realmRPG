@@ -66,6 +66,7 @@ if(!isset($_SESSION["loggedIn"]))
 <img src="images/MenuBackground.png" id="menuBackground" class="noDraw"/>
 <img src="images/CaveFisher.png" id="caveFisher" class="noDraw"/>
 <img src="images/WizardNPC.png" id="wizardNPC" class="noDraw"/>
+<img src="images/WeaponSword.png" id="sword" class="noDraw"/>
 
 <input id="loggedIn" type="hidden" name="loggedIn" value='<?=$_SESSION["loggedIn"];?>'/>
 <input id="username" type="hidden" name="username" value='<?=$_SESSION["username"];?>'/>
